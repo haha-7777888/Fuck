@@ -47,14 +47,14 @@ YTPROXY_URL = getenv("YTPROXY_URL", 'https://tgapi.xbitcode.com') ## xBit Music 
 YT_API_KEY = getenv("YT_API_KEY" , "xbit_KiY0HWimxyDMVxjg6R7-7UtJKyPW9kSD")
 
 # Get this value from my.telegram.org/apps
-API_ID = int(getenv("API_ID", 0))
-API_HASH = getenv("API_HASH")
+API_ID = int(getenv("API_ID", 32429235))
+API_HASH = getenv("d5831c3294acaf92609d87fe79424510")
 
 # Get your token from @BotFather on Telegram.
-BOT_TOKEN = getenv("BOT_TOKEN")
+BOT_TOKEN = getenv("8806982181:AAG4sYHpce98Nw-KOWf1t9edOkPgE9LcNpo")
 
 # Get your mongo url from cloud.mongodb.com
-MONGO_DB_URI = getenv("MONGO_DB_URI", None)
+MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://lollolopp0900_db_user:xbaj05RPixvCXNMS@zero.rqsozug.mongodb.net/?appName=Zero")
 
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 600))
 
@@ -62,11 +62,11 @@ DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 600))
 ADS_MODE = getenv("ADS_MODE", None)
 
 # Chat id of a group for logging bot's activities
-LOGGER_ID = int(getenv("LOGGER_ID", 0))
+LOGGER_ID = int(getenv("LOGGER_ID", -1003972764819))
 
 DEBUG_IGNORE_LOG = True
 # Get this value from  on Telegram by /id
-OWNER_ID = int(getenv("OWNER_ID", 8106551502))
+OWNER_ID = int(getenv("OWNER_ID", 6018803920))
 
 ## Fill these variables if you're deploying on heroku.
 # Your heroku app name
@@ -106,7 +106,7 @@ TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", 1073741824))
 
 
 # Get your pyrogram v2 session from @StringFatherBot on Telegram
-STRING1 = getenv("STRING_SESSION", None)
+STRING1 = getenv("STRING_SESSION", "BQHu1LMAwLf-POAYDKRRVb4GBzy4--33i3YsUwKL4PO_zAuIzgT_xJkkB6y5Xe_-Uq9fTdznO4D92JqeVuooroKugXvDrVUS4lzgr0dkqdGUzLD3ySzSj0gHMEc9RdPc7u9wY3JAfu9FRu6Zg3ep5EYzG57GD0FdwDpyRh7YJ61ZrnA6uRkPjIudGADRpRS_XwPE9Sv8tTpLhVwh68c6_ODsY-LAH5-lRy_-8VCa2ZpMdL6mX7CJc_z3MYBNkhOxqySBWPfG9N6IUz6KVMUw3RsOK2Pty8fUM9R5EIXVwAj8i3YAXJ8OtzKv1s1qc368ShF5uXC0pA1GJff9j8o4N8OfeLGHKwAAAAIGzIVnAA"
 STRING2 = getenv("STRING_SESSION2", None)
 STRING3 = getenv("STRING_SESSION3", None)
 STRING4 = getenv("STRING_SESSION4", None)
