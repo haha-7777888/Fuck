@@ -1,4 +1,4 @@
-```python
+
 #
 # Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
 #
@@ -130,4 +130,4 @@ async def askip_command(client, message: Message, _, chat_id):
 
     except Exception as ex:
         print(f"Autoplay skip error: {ex}")
-```
+
