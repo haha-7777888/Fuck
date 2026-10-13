@@ -1,4 +1,3 @@
-
 #
 # Copyright (C) 2021-2022 by TheAloneteam@Github,
 # < https://github.com/TheAloneTeam >.
@@ -66,12 +65,20 @@ async def helper_private(
 
         keyboard = help_pannel(_)
 
-        await update.reply_photo(
-            photo=START_IMG_URL,
-            has_spoiler=False,
-            caption=_["help_1"].format(SUPPORT_CHAT),
-            reply_markup=InlineKeyboardMarkup(keyboard),
-        )
+        # Safe photo reply with text fallback to prevent WEBPAGE_MEDIA_EMPTY crash
+        try:
+            await update.reply_photo(
+                photo=START_IMG_URL,
+                has_spoiler=False,
+                caption=_["help_1"].format(SUPPORT_CHAT),
+                reply_markup=InlineKeyboardMarkup(keyboard),
+            )
+        except Exception:
+            await update.reply_text(
+                text=_["help_1"].format(SUPPORT_CHAT),
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                disable_web_page_preview=True,
+            )
 
 
 @app.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)
