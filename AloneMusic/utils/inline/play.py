@@ -1,5 +1,4 @@
-```python
-#
+
 # Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
 #
 # This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
@@ -381,4 +380,4 @@ def slider_markup(
     ]
 
     return buttons
-```
+
