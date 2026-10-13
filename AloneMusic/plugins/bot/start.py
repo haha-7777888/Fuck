@@ -1,9 +1,9 @@
 
 #
 # Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
-# This file is part of < https://github.com/TheAloneTeam/ZeroTwo > project,
+# This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
 # and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/TheAloneTeam/ZeroTwo/blob/master/LICENSE >
+# Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
 #
 # All rights reserved.
 
@@ -16,10 +16,10 @@ from pyrogram.enums import ChatType
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 import config
-from ZeroTwo import app
-from ZeroTwo.misc import _boot_
-from ZeroTwo.plugins.sudo.sudoers import sudoers_list
-from ZeroTwo.utils.database import (
+from AloneMusic import app
+from AloneMusic.misc import _boot_
+from AloneMusic.plugins.sudo.sudoers import sudoers_list
+from AloneMusic.utils.database import (
     add_served_chat,
     add_served_user,
     blacklisted_chats,
@@ -27,10 +27,10 @@ from ZeroTwo.utils.database import (
     is_banned_user,
     is_on_off,
 )
-from ZeroTwo.utils.decorators.language import LanguageStart
-from ZeroTwo.utils.formatters import get_readable_time
-from ZeroTwo.utils.inline import help_pannel
-from ZeroTwo.utils.inline.start import start_panel, private_panel
+from AloneMusic.utils.decorators.language import LanguageStart
+from AloneMusic.utils.formatters import get_readable_time
+from AloneMusic.utils.inline import help_pannel
+from AloneMusic.utils.inline.start import start_panel, private_panel
 from config import BANNED_USERS
 from strings import get_string
 

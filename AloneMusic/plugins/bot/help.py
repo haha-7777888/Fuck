@@ -4,10 +4,10 @@
 # < https://github.com/TheAloneTeam >.
 #
 # This file is part of
-# < https://github.com/TheAloneTeam/ZeroTwo > project,
+# < https://github.com/TheAloneTeam/AloneMusic > project,
 # and is released under the "GNU v3.0 License Agreement".
 # Please see
-# < https://github.com/TheAloneTeam/ZeroTwo/blob/master/LICENSE >
+# < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
 #
 # All rights reserved.
 
@@ -16,12 +16,12 @@ from typing import Union
 from pyrogram import filters, types
 from pyrogram.types import InlineKeyboardMarkup, Message
 
-from ZeroTwo import app
-from ZeroTwo.misc import SUDOERS
-from ZeroTwo.utils import help_pannel
-from ZeroTwo.utils.database import get_lang
-from ZeroTwo.utils.decorators.language import LanguageStart
-from ZeroTwo.utils.inline.help import help_back_markup
+from AloneMusic import app
+from AloneMusic.misc import SUDOERS
+from AloneMusic.utils import help_pannel
+from AloneMusic.utils.database import get_lang
+from AloneMusic.utils.decorators.language import LanguageStart
+from AloneMusic.utils.inline.help import help_back_markup
 
 from config import BANNED_USERS, START_IMG_URL, SUPPORT_CHAT
 from strings import get_string

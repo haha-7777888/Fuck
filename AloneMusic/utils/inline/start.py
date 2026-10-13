@@ -2,7 +2,7 @@
 from pyrogram.types import InlineKeyboardButton
 
 import config
-from ZeroTwo import app
+from AloneMusic import app
 
 
 def btn(text, style=None, icon=None, **kw):
