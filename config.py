@@ -131,7 +131,7 @@ PING_IMG_URL = getenv(
 )
 
 PLAYLIST_IMG_URL = (
-    "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+    "https://i.ibb.co/WW9NDyD1/photo-2026-10-13-11-11-57-7696108591547154472.jpg"
 )
 
 STATS_IMG_URL = (
