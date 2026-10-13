@@ -1,74 +1,79 @@
-#
-# Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
-#
-# This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
-# and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
-#
-# All rights reserved.
 
-from pyrogram.types import InlineKeyboardButton, WebAppInfo
+from pyrogram.types import InlineKeyboardButton
 
 import config
-from AloneMusic import app
+from ZeroTwo import app
+
+
+def btn(text, style=None, icon=None, **kw):
+    try:
+        from pyrogram.enums import ButtonStyle
+
+        extra = {}
+
+        if style:
+            extra["style"] = getattr(ButtonStyle, style.upper())
+
+        if icon:
+            extra["icon_custom_emoji_id"] = str(icon)
+
+        return InlineKeyboardButton(text=text, **kw, **extra)
+
+    except (ImportError, TypeError, AttributeError):
+        return InlineKeyboardButton(text=text, **kw)
 
 
 def start_panel(_):
-    buttons = [
+    """Buttons for group start: Add Me + Support in one row."""
+    return [
         [
-            InlineKeyboardButton(
-                text=_["S_B_1"], url=f"https://t.me/{app.username}?startgroup=true"
+            btn(
+                "𝐀ᴅᴅ 𝐌ᴇ",
+                "success",
+                5134476056241112076,
+                url=f"https://t.me/{app.username}?startgroup=true",
             ),
-            InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_CHAT),
+            btn(
+                "𝐒ᴜᴘᴘᴏʀᴛ",
+                "success",
+                5134202243486057363,
+                url=config.SUPPORT_CHAT,
+            ),
         ],
     ]
-    return buttons
-
-
-from pyrogram.types import InlineKeyboardButton, WebAppInfo
 
 
 def private_panel(_):
-    buttons = [
+    """Buttons for private/DM start."""
+    return [
         [
-            InlineKeyboardButton(
-                text=_["S_B_3"],
+            btn(
+                " 𝐀ᴅᴅ 𝐌ᴇ",
+                "success",
+                5134476056241112076,
                 url=f"https://t.me/{app.username}?startgroup=true",
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text=_["S_B_4"],
-                callback_data="settings_back_helper"
             ),
         ],
         [
-            InlineKeyboardButton(
-                text=_["S_B_2"],
-                callback_data="Alone_Music"
+            btn(
+                " 𝐒ᴜᴘᴘᴏʀᴛ",
+                "success",
+                5134202243486057363,
+                url=config.SUPPORT_CHAT,
             ),
-            InlineKeyboardButton(
-                text="⌯ ꜱᴏᴜʀᴄᴇ ⌯",
-                callback_data="gib_source"
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text="⌯ ʙᴏᴛꜱ ꜱᴛᴀᴛꜱ ⌯",
-                url="https://t.me/Aashik_Bots"
-            ),
-            InlineKeyboardButton(
-                text="⌯ ᴘʀɪᴠᴀᴄʏ ⌯",
-                url="https://graph.org/AloneMusic-04-12-2"
+            btn(
+                " 𝐂ᴏᴅᴇ 𝐂ʀᴇᴡ",
+                "success",
+                5085022089103016925,
+                url=config.CODE_CREW_CHANNEL,
             ),
         ],
         [
-            InlineKeyboardButton(
-                text="⌯ 𝖠𝗅𝗈𝗇𝖾 𝖬𝗎𝗌𝗂𝖼 ⌯",
-                web_app=WebAppInfo(
-                    url="https://alonemusic.vercel.app"
-                )
+            btn(
+                "𝐂ᴏᴍᴍᴀɴᴅs",
+                "success",
+                5134202243486057363,
+                callback_data="settings_back_helper",
             ),
         ],
     ]
-    return buttons
