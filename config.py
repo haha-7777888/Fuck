@@ -131,17 +131,14 @@ PING_IMG_URL = getenv(
 )
 
 PLAYLIST_IMG_URL = (
-    "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
     "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
 )
 
 STATS_IMG_URL = (
-    "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
     "https://i.ibb.co/WW9NDyD1/photo-2026-10-13-11-11-57-7696108591547154472.jpg"
 )
 
 TELEGRAM_AUDIO_URL = (
-    "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
     "https://files.catbox.moe/rzqjq1.jpg"
 )
 
