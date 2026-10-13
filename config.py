@@ -120,12 +120,12 @@ votemode = {}
 autoclean = []
 confirmer = {}
 
-START_IMG_URL = get_env(
+START_IMG_URL = getenv(
     "START_IMG_URL",
     "https://i.ibb.co/99NrkQjn/photo-2026-10-13-06-09-53-7696030749559881736.jpg",
 )
 
-PING_IMG_URL = get_env(
+PING_IMG_URL = getenv(
     "PING_IMG_URL",
     "https://image-link.edgeone.app/1791871666033-9gtgif.jpg",
 )
