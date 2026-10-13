@@ -22,7 +22,7 @@ from config import BANNED_USERS, OWNER_ID
 @language
 async def tts_status(client, message: Message, _):
     if len(message.command) != 2:
-        mode = await is_tts_on()
+        mode = await is_tts_off()
         current = _["ST_B_5"] if mode else _["ST_B_6"]
         return await message.reply_text(_["tts_1"].format(current))
 
