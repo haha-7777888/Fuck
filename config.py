@@ -57,7 +57,7 @@ BOT_TOKEN = getenv("8806982181:AAG4sYHpce98Nw-KOWf1t9edOkPgE9LcNpo")
 MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://lollolopp0900_db_user:xbaj05RPixvCXNMS@zero.rqsozug.mongodb.net/?appName=Zero")
 
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 600))
-
+CODE_CREW_CHANNEL = "https://t.me/thecodecrew"
 # Set this to true if you want post ads automatically
 ADS_MODE = getenv("ADS_MODE", None)
 
