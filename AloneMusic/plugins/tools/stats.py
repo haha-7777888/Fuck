@@ -33,11 +33,18 @@ from config import BANNED_USERS
 @language
 async def stats_global(client, message: Message, _):
     upl = stats_buttons(_, True if message.from_user.id in SUDOERS else False)
-    await message.reply_photo(
-        photo=config.STATS_IMG_URL,
-        caption=_["gstats_2"].format(app.mention),
-        reply_markup=upl,
-    )
+    try:
+        await message.reply_photo(
+            photo=config.STATS_IMG_URL,
+            caption=_["gstats_2"].format(app.mention),
+            reply_markup=upl,
+        )
+    except Exception:
+        # Fallback to text if photo fails to load/fetch
+        await message.reply_text(
+            text=_["gstats_2"].format(app.mention),
+            reply_markup=upl,
+        )
 
 
 @app.on_callback_query(filters.regex("stats_back") & ~BANNED_USERS)
