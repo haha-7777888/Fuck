@@ -24,14 +24,33 @@ from config import BANNED_USERS, PING_IMG_URL
 @language
 async def ping_com(client, message: Message, _):
     start = datetime.now()
-    response = await message.reply_photo(
-        photo=PING_IMG_URL,
-        caption=_["ping_1"].format(app.mention),
-    )
+    
+    # Try sending photo; fallback to text if photo URL fails
+    try:
+        response = await message.reply_photo(
+            photo=PING_IMG_URL,
+            caption=_["ping_1"].format(app.mention),
+        )
+        has_photo = True
+    except Exception:
+        response = await message.reply_text(
+            text=_["ping_1"].format(app.mention),
+        )
+        has_photo = False
+
     pytgping = await Alone.ping()
     UP, CPU, RAM, DISK = await bot_sys_stats()
     resp = (datetime.now() - start).microseconds / 1000
-    await response.edit_text(
-        _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping),
-        reply_markup=supp_markup(_),
-    )
+
+    text_to_send = _["ping_2"].format(resp, app.mention, UP, RAM, CPU, DISK, pytgping)
+
+    if has_photo:
+        await response.edit_caption(
+            caption=text_to_send,
+            reply_markup=supp_markup(_),
+        )
+    else:
+        await response.edit_text(
+            text=text_to_send,
+            reply_markup=supp_markup(_),
+        )
