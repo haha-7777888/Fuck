@@ -220,7 +220,7 @@ def stream_markup(
             ],
             [
                 btn("☰", "primary", callback_data=f"ADMIN More|{chat_id}"),
-                btn("🗑", "danger", callback_data="close"),
+                btn("ᴄʟᴏsᴇ", "danger", 5258130763148172425, callback_data="close"),
             ],
         ]
 
