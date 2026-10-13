@@ -1,21 +1,21 @@
 #
 # Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
 #
-# This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
+# This file is part of < https://github.com/TheAloneTeam/ZeroTwo > project,
 # and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
+# Please see < https://github.com/TheAloneTeam/ZeroTwo/blob/master/LICENSE >
 #
 # All rights reserved.
 
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from config import SUPPORT_CHAT
-
+from ZeroTwo.utils.inline.help import btn
 
 def botplaylist_markup(_):
     buttons = [
         [
-            InlineKeyboardButton(text=_["S_B_9"], url=SUPPORT_CHAT),
+            btn(_["S_B_9"], "success", 5134202243486057363, url=SUPPORT_CHAT),
             InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"),
         ],
     ]
@@ -40,8 +40,10 @@ def supp_markup(_):
     upl = InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton(
-                    text=_["S_B_9"],
+                btn(
+                    _["S_B_9"],
+                    "success",
+                    5134202243486057363,
                     url=SUPPORT_CHAT,
                 ),
             ]
