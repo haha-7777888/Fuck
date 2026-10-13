@@ -120,26 +120,40 @@ votemode = {}
 autoclean = []
 confirmer = {}
 
-"""
-START_IMG_URL = getenv(
+START_IMG_URL = get_env(
     "START_IMG_URL",
-    "https://files.catbox.moe/34xlvu.jpg",
+    "https://i.ibb.co/99NrkQjn/photo-2026-10-13-06-09-53-7696030749559881736.jpg",
 )
-PING_IMG_URL = getenv(
+
+PING_IMG_URL = get_env(
     "PING_IMG_URL",
-    "https://files.catbox.moe/34xlvu.jpg",
+    "https://image-link.edgeone.app/1791871666033-9gtgif.jpg",
 )
-PLAYLIST_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-STATS_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-TELEGRAM_AUDIO_URL = "https://files.catbox.moe/34xlvu.jpg"
-TELEGRAM_VIDEO_URL = "https://files.catbox.moe/34xlvu.jpg"
-STREAM_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-SOUNCLOUD_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-YOUTUBE_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-SPOTIFY_ARTIST_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-SPOTIFY_ALBUM_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-SPOTIFY_PLAYLIST_IMG_URL = "https://files.catbox.moe/34xlvu.jpg"
-"""
+
+PLAYLIST_IMG_URL = (
+    "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
+    "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+)
+
+STATS_IMG_URL = (
+    "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
+    "https://i.ibb.co/0V89tqgs/photo-2026-10-13-06-08-59-7696030517631647780.jpg"
+)
+
+TELEGRAM_AUDIO_URL = (
+    "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
+    "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+)
+
+TELEGRAM_VIDEO_URL = TELEGRAM_AUDIO_URL
+
+STREAM_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+SOUNCLOUD_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+YOUTUBE_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+SPOTIFY_ARTIST_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+SPOTIFY_ALBUM_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+SPOTIFY_PLAYLIST_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+
 
 def time_to_seconds(time):
     stringt = str(time)
