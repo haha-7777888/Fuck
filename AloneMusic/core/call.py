@@ -522,21 +522,26 @@ class Call(PyTgCalls):
                             buttons = InlineKeyboardMarkup(
                                 [
                                     [
-                                        InlineKeyboardButton(
-                                            "✙ ʌᴅᴅ ϻє вᴧʙʏ ✙",
-                                            url=f"https://t.me/{app.username}?startgroup=true",
-                                        ),
+                                        btn(
+    " ʌᴅᴅ ϻє вᴧʙʏ ",
+    "success",
+    5134202243486057363,
+    url=f"https://t.me/{app.username}?startgroup=true",
+),
                                     ],
                                     [
-                                        InlineKeyboardButton(
-                                            "⋞ ᴄʟᴏsє ⋟", callback_data="close_message"
-                                        ),
+                                        btn(
+    " ᴄʟᴏsє ",
+    "danger",
+    5258236805890710909,
+    callback_data="close_message",
+),
                                     ]
                                 ]
                             )
                             await app.send_message(
                                 chat_id,
-                                "🎵 𝐓ʜᴇ 𝐐ᴜᴇᴜᴇ 𝐇ᴀs 𝐅ɪɴɪsʜᴇᴅ. 𝐔sᴇ /play 𝐓ᴏ 𝐀ᴅᴅ 𝐌ᴏʀᴇ 𝐒ᴏɴɢs!!",
+                                '<emoji id="5334665104677941170">🎵</emoji> 𝐓ʜᴇ 𝐐ᴜᴇᴜᴇ 𝐇ᴀs 𝐅ɪɴɪsʜᴇᴅ. 𝐔sᴇ /play 𝐓ᴏ 𝐀ᴅᴅ 𝐌ᴏʀᴇ 𝐒ᴏɴɢs!!',
                                 reply_markup=buttons,
                             )
                         except:
