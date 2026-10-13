@@ -46,27 +46,31 @@ def track_markup(_, videoid, user_id, channel, fplay, thumb: Union[bool, str] = 
     buttons = [
         [
             btn(
-                "🎵",
-                "success",
-                callback_data=f"MusicStream {videoid}|{user_id}|a|{channel}|{fplay}",
-            ),
+    " ",
+    "success",
+    5334665104677941170,
+    callback_data=f"MusicStream {videoid}|{user_id}|a|{channel}|{fplay}",
+),
             btn(
-                "🎥",
-                "primary",
-                callback_data=f"MusicStream {videoid}|{user_id}|v|{channel}|{fplay}",
-            ),
+    " ",
+    "primary",
+    5258077307985207053,
+    callback_data=f"MusicStream {videoid}|{user_id}|v|{channel}|{fplay}",
+),
         ],
         [
             btn(
-                "⎘",
-                "primary",
-                callback_data=f"MusicThumb {videoid}|{user_id}|{channel}|{fplay}",
-            ),
+    " ",
+    "primary",
+    5323404142809467476,
+    callback_data=f"MusicThumb {videoid}|{user_id}|{channel}|{fplay}",
+),
             btn(
-                "⌯✖",
-                "danger",
-                callback_data=f"forceclose {videoid}|{user_id}",
-            ),
+    " ",
+    "danger",
+    5260342697075416641,
+    callback_data=f"forceclose {videoid}|{user_id}",
+),
         ],
     ]
     return buttons
@@ -129,19 +133,19 @@ def stream_markup_timer(
                 )
             ],
             [
-                btn("▷", "success", callback_data=f"ADMIN Resume|{chat_id}"),
+                btn(" ", "success", 5773626993010546707, callback_data=f"ADMIN Resume|{chat_id}"),
                 btn("II", "primary", callback_data=f"ADMIN Pause|{chat_id}"),
-                btn("‣‣I", "success", callback_data=f"ADMIN Skip|{chat_id}"),
-                btn("↻", "primary", callback_data=f"ADMIN Replay|{chat_id}"),
+                btn(" ", "success", 5253767677670862169, callback_data=f"ADMIN Skip|{chat_id}"),
+                btn(" ", "primary", 5845943483382110702, callback_data=f"ADMIN Replay|{chat_id}"),
                 btn("▢", "danger", callback_data=f"ADMIN Stop|{chat_id}"),
             ],
             [
                 btn("<-𝟤𝟢 s", "primary", callback_data="seek_backward_20"),
-                btn("☰", "primary", callback_data=f"ADMIN More|{chat_id}"),
+                btn(" ", "primary", 5766994197705921104, callback_data=f"ADMIN More|{chat_id}"),
                 btn("𝟤𝟢s+ >", "primary", callback_data="seek_forward_20"),
             ],
             [
-                btn("🗑", "danger", callback_data="close"),
+                btn(" ", "danger", 5258130763148172425, callback_data="close"),
             ],
         ]
 
