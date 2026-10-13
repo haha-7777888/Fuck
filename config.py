@@ -127,7 +127,7 @@ START_IMG_URL = getenv(
 
 PING_IMG_URL = getenv(
     "PING_IMG_URL",
-    "https://i.ibb.co/99NrkQjn/photo-2026-10-13-06-09-53-7696030749559881736.jpg",
+    "https://i.ibb.co/8Dbts8dK/photo-2026-10-13-11-10-48-7696108295194411036.jpg",
 )
 
 PLAYLIST_IMG_URL = (
@@ -137,19 +137,19 @@ PLAYLIST_IMG_URL = (
 
 STATS_IMG_URL = (
     "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
-    "https://i.ibb.co/0V89tqgs/photo-2026-10-13-06-08-59-7696030517631647780.jpg"
+    "https://i.ibb.co/WW9NDyD1/photo-2026-10-13-11-11-57-7696108591547154472.jpg"
 )
 
 TELEGRAM_AUDIO_URL = (
     "https://repgyetdcodkynrbxocg.supabase.co/storage/v1/object/public/"
-    "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+    "https://files.catbox.moe/rzqjq1.jpg"
 )
 
 TELEGRAM_VIDEO_URL = TELEGRAM_AUDIO_URL
 
-STREAM_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
-SOUNCLOUD_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
-YOUTUBE_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+STREAM_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
+SOUNCLOUD_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
+YOUTUBE_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
 SPOTIFY_ARTIST_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
 SPOTIFY_ALBUM_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
 SPOTIFY_PLAYLIST_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
