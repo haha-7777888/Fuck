@@ -46,9 +46,9 @@ load_dotenv()
 YTPROXY_URL = getenv("YTPROXY_URL", 'https://tgapi.xbitcode.com') ## xBit Music Endpoint.
 YT_API_KEY = getenv("YT_API_KEY" , "xbit_KiY0HWimxyDMVxjg6R7-7UtJKyPW9kSD")
 
-# Get this value from my.telegram.org/apps
-API_ID = int(getenv("API_ID", 25742938))
-API_HASH = getenv("b35b715fe8dc0a58e8048988286fc5b6")
+# Gethis value from my.telegram.org/apps
+API_ID = getenv("API_ID", "25742938")
+API_HASH = getenv("API_HASH", "b35b715fe8dc0a58e8048988286fc5b6")
 
 # Get your token from @BotFather on Telegram.
 BOT_TOKEN = getenv("8806982181:AAG4sYHpce98Nw-KOWf1t9edOkPgE9LcNpo")
