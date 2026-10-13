@@ -27,10 +27,8 @@ async def autoplay_command(client, message: Message, _):
         playmode = await is_autoplay_on(message.chat.id)
         buttons = [
             [
-                buttons = [
-            [
                 btn(
-                    " ᴇɴᴀʙʟᴇ " if not playmode else " ᴅɪsᴀʙʟᴇ ",
+                    "≡ ᴇɴᴀʙʟᴇ ≡" if not playmode else "≡ ᴅɪsᴀʙʟᴇ ≡",
                     "success",
                     6251358825274672453,
                     callback_data="AUTOPLAYCHANGE",
@@ -38,11 +36,17 @@ async def autoplay_command(client, message: Message, _):
             ],
             [
                 btn(
-                    " ᴄʟᴏsᴇ ",
+                    "≡ ᴄʟᴏsᴇ ≡",
                     "success",
                     5258236805890710909,
                     callback_data="close",
                 ),
+            ],
+        ]
+        return await message.reply_text(
+            _["autoplay_1"],
+            reply_markup=InlineKeyboardMarkup(buttons),
+        ),
             ],
         ]
             ],
