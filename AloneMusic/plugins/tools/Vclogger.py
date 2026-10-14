@@ -190,9 +190,7 @@ async def handle_user_join(chat_id, user_id, userbot):
             f"│ ✦ 𝐈ᴅ ➛ `{user.id}`\n"
             f"│ ✦ 𝐔sᴇʀɴᴀᴍᴇ ➛ @{username}\n"
             "╰────────────────────╯"
-            
         )
-
         sent = await app.send_message(chat_id, msg)
         await asyncio.sleep(3)
         try:
