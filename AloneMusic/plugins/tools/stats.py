@@ -36,7 +36,7 @@ from config import BANNED_USERS
 @app.on_message(
     filters.command(["stats", "gstats"])
     & filters.group
-    & filters.user(SUDOERS)
+    & filters.user(list(SUDOERS))
     & ~BANNED_USERS
 )
 @language
@@ -59,7 +59,7 @@ async def stats_global(client, message: Message, _):
 
 @app.on_callback_query(
     filters.regex("stats_back")
-    & filters.user(SUDOERS)
+    & filters.user(list(SUDOERS))
     & ~BANNED_USERS
 )
 @languageCB
@@ -74,7 +74,7 @@ async def home_stats(client, CallbackQuery, _):
 
 @app.on_callback_query(
     filters.regex("TopOverall")
-    & filters.user(SUDOERS)
+    & filters.user(list(SUDOERS))
     & ~BANNED_USERS
 )
 @languageCB
@@ -122,7 +122,7 @@ async def overall_stats(client, CallbackQuery, _):
 
 @app.on_callback_query(
     filters.regex("bot_stats_sudo")
-    & filters.user(SUDOERS)
+    & filters.user(list(SUDOERS))
     & ~BANNED_USERS
 )
 @languageCB
