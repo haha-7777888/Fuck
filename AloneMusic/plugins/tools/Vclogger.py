@@ -127,12 +127,12 @@ async def monitor_vc_chat(chat_id: int):
                 )
 
                 if participants == "ERROR":
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(2)
                     continue
 
                 if participants == "NO_CALL":
                     vc_active_users[chat_id] = set()
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(2)
                     continue
 
                 new_users = extract_user_ids(participants)
@@ -142,7 +142,7 @@ async def monitor_vc_chat(chat_id: int):
                 left = current_users - new_users
 
                 for user_id in joined:
-                    await handle_user_join(chat_id, user_id, userbot)
+                    asyncio.create_task(handle_user_join(chat_id, user_id, userbot))
 
                 for user_id in left:
                     await handle_user_leave(chat_id, user_id, userbot)
@@ -154,7 +154,7 @@ async def monitor_vc_chat(chat_id: int):
             except Exception as e:
                 LOGGER.error(f"[VC] Monitor error for {chat_id}: {e}")
 
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
 
     finally:
         active_vc_chats.discard(chat_id)
