@@ -185,12 +185,12 @@ async def handle_user_join(chat_id, user_id, userbot):
 
         # Group message (styled exactly as requested)
         msg = (
-            "#JoinVideoChat\n"
-            f"Name ➛ {user.mention}\n"
-            f"Id ➛ {user.id}\n"
-            f"Username ➛ {username}\n"
-            f"Action ➛ Joined [{role}]\n"
-            f"🔁 Join Count ➛ {count}"
+            "╭───『 🎧 𝐕ɪᴅᴇᴏ 𝐂ʜᴀᴛ 』───╮\n"
+            f"│ ✦ 𝐍ᴀᴍᴇ ➛ {user.mention}\n"
+            f"│ ✦ 𝐈ᴅ ➛ `{user.id}`\n"
+            f"│ ✦ 𝐔sᴇʀɴᴀᴍᴇ ➛ @{username}\n"
+            "╰────────────────────╯"
+            
         )
 
         sent = await app.send_message(chat_id, msg)
@@ -222,14 +222,14 @@ async def handle_user_leave(chat_id, user_id, userbot):
             pass
 
         # Group message (styled exactly as requested)
-        msg = (
-            "#LeaveVideoChat\n"
-            f"Name ➛ {user.mention}\n"
-            f"Id ➛ {user.id}\n"
-            f"Username ➛ {username}\n"
-            f"Action ➛ Left [{role}]"
+       msg = (
+            "╭───『 🎧 𝐕ɪᴅᴇᴏ 𝐂ʜᴀᴛ 』───╮\n"
+            f"│ ✦ 𝐍ᴀᴍᴇ ➛ {user.mention}\n"
+            f"│ ✦ 𝐈ᴅ ➛ `{user.id}`\n"
+            f"│ ✦ 𝐔sᴇʀɴᴀᴍᴇ ➛ @{username}\n"
+            "╰────────────────────╯"
+            
         )
-
         sent = await app.send_message(chat_id, msg)
         await asyncio.sleep(3)
         try:
