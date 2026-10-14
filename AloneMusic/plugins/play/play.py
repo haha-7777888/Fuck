@@ -107,6 +107,10 @@ async def play_commnd(
             "🫧",
         ]
     )
+    try:
+        await message.delete()
+    except Exception:
+        pass
     mystic = await message.reply_text(
         _["play_2"].format(channel) if channel else _["play_1"]
     )
