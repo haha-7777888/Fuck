@@ -1,4 +1,3 @@
-
 """
 YouTube.py — YouTube platform for AloneMusic
 License: GNU GPL v3.0
@@ -8,11 +7,13 @@ No YouTube Data API key required.
 """
 
 import asyncio
+import copy
 import glob
 import logging
 import os
 import random
 import re
+import shutil
 import time
 import urllib.parse
 from typing import Union
@@ -67,6 +68,17 @@ API_KEY = ""
 LOGGER = logging.getLogger(__name__)
 
 DOWNLOAD_DIR = "downloads"
+# --- Speed settings -------------------------------------------------------
+# m4a (AAC) is small and starts fast; falls back to anything else.
+AUDIO_FORMAT = "bestaudio[ext=m4a]/bestaudio/best"
+VIDEO_FORMAT = "best[height<=720][width<=1280]/best[height<=720]/best"
+# Max simultaneous background (prefetch) downloads.
+MAX_PREFETCH_PARALLEL = 1
+# aria2c (if installed) opens many connections per file = much faster.
+HAS_ARIA2C = shutil.which("aria2c") is not None
+AUDIO_EXTS = ("m4a", "opus", "ogg", "mp3", "aac", "webm")
+_PARTIAL_RE = re.compile(r"(\.(part|ytdl|temp|tmp)$)|(\.f\d+\.)", re.I)
+
 BASE_URL = "https://www.youtube.com/watch?v="
 PLAYLIST_URL = "https://www.youtube.com/playlist?list="
 
@@ -166,12 +178,17 @@ class YouTubeAPI:
 
         # Metadata cache: 3 minutes.
         self._info_cache = {}
-        self._cache_ttl = 180
+        self._cache_ttl = 600
         self._cache_limit = 200
 
         # Prevent multiple simultaneous lookups for the same query.
         self._info_locks = {}
         self._lock_guard = asyncio.Lock()
+
+        # Download dedupe + background prefetch.
+        self._inflight = {}
+        self._bg_tasks = set()
+        self._prefetch_sem = asyncio.Semaphore(MAX_PREFETCH_PARALLEL)
 
     async def get_client(self):
         if httpx is None:
@@ -719,10 +736,19 @@ class YouTubeAPI:
             item["vidid"],
         )
 
-    async def prefetch(self, link, video=False):
-        if not API_URL:
-            return False
+    def _start_local_prefetch(self, link, video=False):
+        task = asyncio.create_task(self._prefetch_local(link, bool(video)))
+        self._bg_tasks.add(task)
+        task.add_done_callback(self._bg_tasks.discard)
 
+    async def _prefetch_local(self, link, video):
+        async with self._prefetch_sem:
+            try:
+                await self.download(link, None, video=video)
+            except Exception as error:
+                LOGGER.debug("Local prefetch failed for %s: %s", link, error)
+
+    async def prefetch(self, link, video=False):
         link = self._clean_link(link)
         now = time.time()
         vidid = extract_vidid(link) or link
@@ -743,6 +769,11 @@ class YouTubeAPI:
                 if now - v < 300
             }
 
+        # No remote API: download to disk in the background instead.
+        if not API_URL:
+            self._start_local_prefetch(link, video)
+            return True
+
         params = {
             "query": link,
             "dl_type": "video" if video else "audio",
@@ -760,8 +791,18 @@ class YouTubeAPI:
             return False
 
     async def prefetch_queue(self, queries, video=False):
-        if not API_URL or not queries:
+        if not queries:
             return False
+
+        if not API_URL:
+            for item in list(queries)[:3]:
+                item = str(item)
+                if not extract_vidid(item):
+                    continue
+                if not item.startswith("http"):
+                    item = self.base + item
+                self._start_local_prefetch(self._clean_link(item), video)
+            return True
 
         params = {"api_key": API_KEY} if API_KEY else {}
 
@@ -794,7 +835,9 @@ class YouTubeAPI:
         )
         candidates = [
             path for path in candidates
-            if os.path.isfile(path) and os.path.getsize(path) > 0
+            if os.path.isfile(path)
+            and os.path.getsize(path) > 0
+            and not _PARTIAL_RE.search(os.path.basename(path))
         ]
 
         if not candidates:
@@ -806,6 +849,80 @@ class YouTubeAPI:
                     return path
 
         return max(candidates, key=os.path.getsize)
+
+    @staticmethod
+    def _cached_file(video_id, is_video):
+        """Return an already-downloaded, complete file for this video."""
+        exts = ("mp4",) if is_video else AUDIO_EXTS
+        for ext in exts:
+            path = os.path.join(DOWNLOAD_DIR, f"{video_id}.{ext}")
+            if os.path.isfile(path) and os.path.getsize(path) > 0:
+                return path
+        return None
+
+    def _get_cached_info(self, link):
+        """Reuse metadata fetched by details()/track() (skips ~1-3s)."""
+        cached = self._info_cache.get(f"{link}|1|False")
+        if not cached or time.monotonic() - cached[0] > self._cache_ttl:
+            return None
+        info = cached[1]
+        if info and info.get("formats") and info.get("entries") is None:
+            return info
+        return None
+
+    def _resolve_path(self, ydl, info, is_video):
+        if not info:
+            return None
+
+        video_id = info.get("id")
+        if video_id:
+            path = self._find_downloaded_file(
+                video_id,
+                preferred_ext="mp4" if is_video else None,
+            )
+            if path:
+                return path
+
+        try:
+            prepared = ydl.prepare_filename(info)
+            if os.path.isfile(prepared) and os.path.getsize(prepared) > 0:
+                return prepared
+        except Exception:
+            pass
+
+        return None
+
+    async def _download_plain(self, link, is_video, base_options):
+        options = dict(base_options)
+        if is_video:
+            options.update({
+                "format": VIDEO_FORMAT,
+                "merge_output_format": "mp4",
+            })
+        else:
+            options["format"] = AUDIO_FORMAT
+
+        cached_info = self._get_cached_info(link)
+
+        def run():
+            with yt_dlp.YoutubeDL(options) as ydl:
+                info = None
+                if cached_info is not None:
+                    try:
+                        info = ydl.process_ie_result(
+                            copy.deepcopy(cached_info), download=True
+                        )
+                    except Exception as error:
+                        # Expired stream URL etc. -> fresh extraction.
+                        LOGGER.debug("Cached-info download failed: %s", error)
+                        info = None
+
+                if not info:
+                    info = ydl.extract_info(link, download=True)
+
+                return self._resolve_path(ydl, info, is_video)
+
+        return await asyncio.to_thread(run)
 
     async def download(
         self,
@@ -836,12 +953,21 @@ class YouTubeAPI:
             "socket_timeout": 25,
             "retries": 2,
             "fragment_retries": 2,
-            "concurrent_fragment_downloads": 4,
+            "concurrent_fragment_downloads": 16,
+            "http_chunk_size": 10 * 1024 * 1024,  # avoids YouTube throttling
+            "noprogress": True,
+            "updatetime": False,
             "outtmpl": os.path.join(
                 DOWNLOAD_DIR,
                 "%(id)s.%(ext)s",
             ),
         }
+
+        if HAS_ARIA2C:
+            base_options["external_downloader"] = "aria2c"
+            base_options["external_downloader_args"] = {
+                "aria2c": ["-x16", "-s16", "-k1M", "--file-allocation=none"]
+            }
 
         if songaudio:
             safe_title = self._safe_filename(title)
@@ -906,65 +1032,37 @@ class YouTubeAPI:
                 raise
 
         is_video = bool(video)
+        vid = extract_vidid(link)
 
-        if is_video:
-            base_options.update({
-                "format": (
-                    "best[height<=720][width<=1280]"
-                    "/best[height<=720]/best"
-                ),
-                "merge_output_format": "mp4",
-            })
-        else:
-            base_options["format"] = "bestaudio/best"
+        # 1) Already on disk -> instant.
+        if vid:
+            cached_file = self._cached_file(vid, is_video)
+            if cached_file:
+                return cached_file, True
 
-        def download_media():
-            with yt_dlp.YoutubeDL(base_options) as ydl:
-                info = ydl.extract_info(link, download=True)
-                if not info:
-                    return None
-
-                video_id = info.get("id")
-                if video_id:
-                    actual_path = self._find_downloaded_file(
-                        video_id,
-                        preferred_ext="mp4" if is_video else None,
-                    )
-                    if actual_path:
-                        return actual_path
-
-                prepared_path = ydl.prepare_filename(info)
-                if (
-                    os.path.isfile(prepared_path)
-                    and os.path.getsize(prepared_path) > 0
-                ):
-                    return prepared_path
-
-                if video_id:
-                    matches = glob.glob(
-                        os.path.join(DOWNLOAD_DIR, f"{video_id}.*")
-                    )
-                    matches = [
-                        path for path in matches
-                        if os.path.isfile(path)
-                        and os.path.getsize(path) > 0
-                    ]
-                    if matches:
-                        return matches[0]
-
-                return None
+        # 2) Same track already downloading (e.g. prefetch) -> share it.
+        key = f"{vid or link}:{'v' if is_video else 'a'}"
+        task = self._inflight.get(key)
+        if task is None:
+            task = asyncio.create_task(
+                self._download_plain(link, is_video, base_options)
+            )
+            self._inflight[key] = task
+            task.add_done_callback(
+                lambda _t, k=key: self._inflight.pop(k, None)
+            )
 
         try:
-            file_path = await asyncio.to_thread(download_media)
-            if not file_path:
-                LOGGER.warning("yt-dlp produced no file for %s", link)
-                return None
-
-            return file_path, True
-
+            file_path = await asyncio.shield(task)
         except Exception as error:
             LOGGER.exception("YouTube download failed for %s: %s", link, error)
             raise
+
+        if not file_path:
+            LOGGER.warning("yt-dlp produced no file for %s", link)
+            return None
+
+        return file_path, True
 
     async def close(self):
         if self._client and not self._client.is_closed:
