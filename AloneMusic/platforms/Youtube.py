@@ -74,7 +74,7 @@ except ImportError:
 
 # Default API URL fallback to live API
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "")
+API_KEY = os.getenv("API_KEY", "riteshfree34f595dcba9427d059ae5804")
 
 LOGGER = logging.getLogger(__name__)
 
