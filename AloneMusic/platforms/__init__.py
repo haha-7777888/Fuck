@@ -6,6 +6,7 @@
 # Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
 #
 # All rights reserved.
+
 from .Apple import AppleAPI
 from .Carbon import CarbonAPI
 from .Resso import RessoAPI
