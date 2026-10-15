@@ -1,11 +1,4 @@
-#
-# Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
-#
-# This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
-# and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
-#
-# All rights reserved.
+d.
 
 import asyncio
 import os
@@ -124,6 +117,10 @@ class Call(PyTgCalls):
             return "-filter:a \"asetrate=48000*1.25,atempo=1.25\""
         return None
 
+    # Shorter probing = audio starts sooner on direct stream URLs.
+    # Set to "" to disable if a stream ever fails to start.
+    FAST_START_FLAGS = "-fflags nobuffer -probesize 128k -analyzeduration 500000"
+
     def _build_stream(
         self,
         source: str,
@@ -131,6 +128,14 @@ class Call(PyTgCalls):
         ffmpeg: str | None = None,
         audio_filter: str | None = None,
     ) -> types.MediaStream:
+        if (
+            self.FAST_START_FLAGS
+            and not video
+            and isinstance(source, str)
+            and source.startswith(("http://", "https://"))
+            and "-ss " not in (ffmpeg or "")
+        ):
+            ffmpeg = f"{self.FAST_START_FLAGS} {ffmpeg}" if ffmpeg else self.FAST_START_FLAGS
         if audio_filter:
             ffmpeg = f"{ffmpeg} {audio_filter}" if ffmpeg else audio_filter
 
@@ -510,6 +515,9 @@ class Call(PyTgCalls):
                             popped["streamtype"],
                             forceplay=True,
                         )
+                        asyncio.ensure_future(
+                            YouTube.prefetch(YouTube.base + video_id)
+                        )
                         # Re-fetch check because put_queue added a song
                         check = db.get(chat_id)
                     except:
@@ -656,6 +664,7 @@ class Call(PyTgCalls):
                     None,
                     videoid=True,
                     video=video,
+                    instant=True,
                 )
             except Exception:
                 if old_mystic:
@@ -673,10 +682,37 @@ class Call(PyTgCalls):
             try:
                 await self._play_on_assistant(client, chat_id, stream)
             except Exception:
-                return await app.send_message(
-                    original_chat_id,
-                    text=_["call_6"],
-                )
+                played = False
+                if not video and str(file_path).startswith("http"):
+                    # Stream URL rejected -> normal download, retry once.
+                    try:
+                        file_path, direct = await YouTube.download(
+                            videoid, None, videoid=True, video=video
+                        )
+                        stream = self._build_stream(
+                            file_path, video=video, audio_filter=audio_filter
+                        )
+                        await self._play_on_assistant(client, chat_id, stream)
+                        played = True
+                    except Exception:
+                        pass
+                if not played:
+                    return await app.send_message(
+                        original_chat_id,
+                        text=_["call_6"],
+                    )
+            # Get the next queued song ready while this one plays.
+            try:
+                nxt = db[chat_id][1] if len(db.get(chat_id, [])) > 1 else None
+                if nxt and "vid_" in str(nxt.get("file")):
+                    asyncio.ensure_future(
+                        YouTube.prefetch(
+                            YouTube.base + nxt["vidid"],
+                            video=str(nxt.get("streamtype")) == "video",
+                        )
+                    )
+            except Exception:
+                pass
             img = await get_thumb(videoid)
             button = stream_markup(
                 _, chat_id, await is_autoplay_on(chat_id), await is_thumb_on(chat_id), await get_filter(chat_id)
@@ -790,6 +826,7 @@ class Call(PyTgCalls):
             await self.four.start()
         if config.STRING5:
             await self.five.start()
+        asyncio.ensure_future(YouTube.warmup())
 
     @capture_internal_err
     async def decorators(self):
