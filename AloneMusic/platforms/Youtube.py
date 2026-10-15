@@ -71,8 +71,8 @@ except ImportError:
 # Optional fallback service, used ONLY when local yt-dlp fails or is blocked.
 # Off by default. Enable with the API_URL / API_KEY environment variables.
 # Note: when enabled, the search text / links of your users are sent to it.
-API_URL = os.getenv("API_URL", "").rstrip("/")
-API_KEY = os.getenv("API_KEY", "")
+API_URL = os.getenv("API_URL", "https://www.riteshyt.in/").rstrip("/")
+API_KEY = os.getenv("API_KEY", "riteshfree34f595dcba9427d059ae5804")
 API_MAX_BYTES = 300 * 1024 * 1024
 
 LOGGER = logging.getLogger(__name__)
