@@ -74,7 +74,7 @@ except ImportError:
 
 # Default API URL fallback to live API
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "riteshfree34f595dcba9427d059ae5804")
+API_KEY = os.getenv("API_KEY", "")
 
 LOGGER = logging.getLogger(__name__)
 
@@ -192,6 +192,15 @@ class YouTubeAPI:
         self._inflight = {}
         self._bg_tasks = set()
         self._prefetch_sem = asyncio.Semaphore(MAX_PREFETCH_PARALLEL)
+
+    async def warmup(self):
+        """Pre-initialize network connections and cache components for fast startup."""
+        try:
+            if httpx is not None:
+                await self.get_client()
+            LOGGER.info("YouTubeAPI warmup completed successfully.")
+        except Exception as err:
+            LOGGER.warning("YouTubeAPI warmup notice: %s", err)
 
     async def get_client(self):
         if httpx is None:
