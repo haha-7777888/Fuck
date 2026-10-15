@@ -1,12 +1,6 @@
-#
-# Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
-#
-# This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
-# and is released under the "GNU v3.0 License Agreement".
-# Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
-#
-# All rights reserved.
 
+
+import asyncio
 import os
 from random import randint
 from typing import Union
@@ -177,6 +171,9 @@ async def stream(
                     "video" if video else "audio",
                     mystic=mystic,
                 )
+                asyncio.ensure_future(
+                    YouTube.prefetch(YouTube.base + vidid, video=bool(video))
+                )
                 position = len(db.get(chat_id)) - 1
                 count += 1
                 msg += f"{count}. {title[:70]}\n"
@@ -187,7 +184,7 @@ async def stream(
                 status = True if video else None
                 try:
                     file_path, direct = await YouTube.download(
-                        vidid, mystic, video=status, videoid=True
+                        vidid, mystic, video=status, videoid=True, instant=True
                     )
                 except:
                     raise AssistantErr(_["play_14"])
@@ -251,18 +248,13 @@ async def stream(
         duration_min = result["duration_min"]
         thumbnail = result["thumb"]
         status = True if video else None
-        try:
-            file_path, direct = await YouTube.download(
-                vidid, mystic, videoid=True, video=status
-            )
-        except Exception as ex:
-            print(ex)
-            raise AssistantErr(_["play_14"])
         if await is_active_chat(chat_id):
+            # Only queue it. No download now: it is prefetched in the
+            # background and resolved instantly when its turn comes.
             await put_queue(
                 chat_id,
                 original_chat_id,
-                file_path if direct else f"vid_{vidid}",
+                f"vid_{vidid}",
                 title,
                 duration_min,
                 user_name,
@@ -271,21 +263,50 @@ async def stream(
                 "video" if video else "audio",
                 mystic=mystic,
             )
+            asyncio.ensure_future(YouTube.prefetch(link, video=bool(video)))
+            asyncio.ensure_future(YouTube.warm(link))
             position = len(db.get(chat_id)) - 1
             button = aq_markup(_, chat_id)
             caption = _["queue_4"].format(position, title[:27], duration_min, user_name)
             await update_queue_ui(chat_id, original_chat_id, mystic, caption, button)
         else:
+            # Build the thumbnail while the stream URL is being resolved.
+            thumb_task = asyncio.ensure_future(get_thumb(vidid))
+            try:
+                file_path, direct = await YouTube.download(
+                    vidid, mystic, videoid=True, video=status, instant=True
+                )
+            except Exception as ex:
+                print(ex)
+                thumb_task.cancel()
+                raise AssistantErr(_["play_14"])
             if not forceplay:
                 db[chat_id] = []
-            await Alone.join_call(
-                chat_id,
-                original_chat_id,
-                file_path,
-                title,
-                video=status,
-                image=thumbnail,
-            )
+            try:
+                await Alone.join_call(
+                    chat_id,
+                    original_chat_id,
+                    file_path,
+                    title,
+                    video=status,
+                    image=thumbnail,
+                )
+            except Exception:
+                # Stream URL rejected -> fall back to a normal download.
+                if status or not str(file_path).startswith("http"):
+                    thumb_task.cancel()
+                    raise
+                file_path, direct = await YouTube.download(
+                    vidid, mystic, videoid=True, video=status
+                )
+                await Alone.join_call(
+                    chat_id,
+                    original_chat_id,
+                    file_path,
+                    title,
+                    video=status,
+                    image=thumbnail,
+                )
             await put_queue(
                 chat_id,
                 original_chat_id,
@@ -299,7 +320,7 @@ async def stream(
                 forceplay=forceplay,
                 mystic=mystic,
             )
-            img = await get_thumb(vidid)
+            img = await thumb_task
             button = stream_markup(
                 _, chat_id, await is_autoplay_on(chat_id), await is_thumb_on(chat_id), await get_filter(chat_id)
             )
