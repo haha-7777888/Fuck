@@ -1,4 +1,10 @@
+"""
+YouTube.py — YouTube platform for AloneMusic
+License: GNU GPL v3.0
 
+YouTube search, metadata, playlists, related videos and downloads via yt-dlp.
+No YouTube Data API key required.
+"""
 
 import asyncio
 import copy
@@ -8,6 +14,7 @@ import os
 import random
 import re
 import shutil
+import threading
 import time
 import urllib.parse
 from typing import Union
@@ -73,6 +80,18 @@ HAS_ARIA2C = shutil.which("aria2c") is not None
 AUDIO_EXTS = ("m4a", "opus", "ogg", "mp3", "aac", "webm")
 _PARTIAL_RE = re.compile(r"(\.(part|ytdl|temp|tmp)$)|(\.f\d+\.)", re.I)
 
+# Fast single-video lookups: one player request with the android_vr client
+# (no web page, no JS player). Falls back to normal extraction on failure and
+# switches itself off for 10 min after 3 failures in a row.
+FAST_EXTRACT = True
+FAST_EXTRACTOR_ARGS = {
+    "youtube": {
+        "player_client": ["android_vr"],
+        "player_skip": ["webpage", "configs"],
+    }
+}
+_tls = threading.local()
+
 BASE_URL = "https://www.youtube.com/watch?v="
 PLAYLIST_URL = "https://www.youtube.com/playlist?list="
 
@@ -114,6 +133,27 @@ def _ydl_options(**overrides):
     }
     options.update(overrides)
     return options
+
+
+def _fast_extract(query):
+    """Single-video lookup on a per-thread, reused yt-dlp instance
+    (keeps connections warm and skips setup cost). Returns info or None."""
+    ydl = getattr(_tls, "ydl", None)
+    try:
+        if ydl is None:
+            ydl = yt_dlp.YoutubeDL(
+                _ydl_options(
+                    noplaylist=True,
+                    extractor_args=FAST_EXTRACTOR_ARGS,
+                    socket_timeout=8,
+                )
+            )
+            _tls.ydl = ydl
+        return ydl.extract_info(query, download=False)
+    except Exception as error:
+        LOGGER.debug("Fast extract failed for %s: %s", query, error)
+        _tls.ydl = None
+        return None
 
 
 async def check_file_size(link):
@@ -178,6 +218,10 @@ class YouTubeAPI:
         # Prevent multiple simultaneous lookups for the same query.
         self._info_locks = {}
         self._lock_guard = asyncio.Lock()
+
+        # Fast-extract circuit breaker.
+        self._fast_fails = 0
+        self._fast_off_until = 0.0
 
         # Download dedupe + background prefetch.
         self._inflight = {}
@@ -343,7 +387,23 @@ class YouTubeAPI:
                 extractor_retries=1,
             )
 
+            use_fast = FAST_EXTRACT and is_url and not flat
+
             def extract():
+                if use_fast and time.monotonic() >= self._fast_off_until:
+                    info = _fast_extract(query)
+                    if info and info.get("formats") and not info.get("entries"):
+                        self._fast_fails = 0
+                        return info
+                    self._fast_fails += 1
+                    if self._fast_fails >= 3:
+                        self._fast_fails = 0
+                        self._fast_off_until = time.monotonic() + 600
+                        LOGGER.warning(
+                            "Fast YouTube extract failing; using normal "
+                            "extraction for 10 minutes."
+                        )
+
                 with yt_dlp.YoutubeDL(options) as ydl:
                     return ydl.extract_info(query, download=False)
 
@@ -355,6 +415,18 @@ class YouTubeAPI:
                         time.monotonic(),
                         info,
                     )
+
+                    # Pasted links come in many shapes (youtu.be, &si=,
+                    # m.youtube...). Also store under the canonical URL so
+                    # warm()/stream_url()/download() never look it up twice.
+                    if (
+                        not flat
+                        and info.get("id")
+                        and info.get("entries") is None
+                    ):
+                        self._info_cache[
+                            f"{BASE_URL}{info['id']}|1|False"
+                        ] = (time.monotonic(), info)
 
                     if len(self._info_cache) > self._cache_limit:
                         now = time.monotonic()
@@ -491,6 +563,15 @@ class YouTubeAPI:
         item = self._normalise_video(results[0])
         if not item:
             return None, None
+
+        # Quick search results can omit the duration, and play.py treats a
+        # missing duration as a live stream. Check the real video first.
+        if item["duration_min"] is None:
+            full = await self._yt_info(item["link"])
+            if full and full.get("entries") is None:
+                full_item = self._normalise_video(full)
+                if full_item:
+                    item = full_item
 
         if item["vidid"]:
             warm_task = asyncio.create_task(self.warm(item["link"]))
