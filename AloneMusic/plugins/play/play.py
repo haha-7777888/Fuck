@@ -85,9 +85,31 @@ async def play_commnd(
     channel,
     playmode,
     url,
+
     fplay,
 ):
+    # Start preparing the assistant while the requested track is resolving.
+    # Do not pre-join for an empty /play command with no replied media.
+    replied = message.reply_to_message
+    has_replied_media = bool(
+        replied
+        and (
+            replied.audio
+            or replied.voice
+            or replied.video
+            or replied.document
+        )
+    )
+    has_request = bool(url or has_replied_media or len(message.command) > 1)
+
+    if has_request:
+        try:
+            Alone.start_prejoin(chat_id)
+        except Exception:
+            pass
+
     emoji = random.choice(
+
         [
             "🔥",
             "💋",
