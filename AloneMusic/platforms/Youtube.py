@@ -1,10 +1,4 @@
-"""
-YouTube.py — YouTube platform for AloneMusic
-License: GNU GPL v3.0
 
-YouTube search, metadata, playlists, related videos and downloads via yt-dlp.
-No YouTube Data API key required.
-"""
 
 import asyncio
 import copy
@@ -316,6 +310,9 @@ class YouTubeAPI:
 
         if not is_url:
             query = f"ytsearch{max(1, int(limit))}:{query}"
+            # Title/duration/thumb are enough for results; the heavy
+            # per-video extraction happens later via warm()/stream_url().
+            flat = True
 
         cache_key = f"{query}|{limit}|{flat}"
         now = time.monotonic()
@@ -494,6 +491,11 @@ class YouTubeAPI:
         item = self._normalise_video(results[0])
         if not item:
             return None, None
+
+        if item["vidid"]:
+            warm_task = asyncio.create_task(self.warm(item["link"]))
+            self._bg_tasks.add(warm_task)
+            warm_task.add_done_callback(self._bg_tasks.discard)
 
         track = {
             "title": item["title"],
@@ -729,6 +731,10 @@ class YouTubeAPI:
         if not item:
             return None, None, None, None
 
+        warm_task = asyncio.create_task(self.warm(item["link"]))
+        self._bg_tasks.add(warm_task)
+        warm_task.add_done_callback(self._bg_tasks.discard)
+
         return (
             item["title"],
             item["duration_min"],
@@ -892,6 +898,48 @@ class YouTubeAPI:
 
         return None
 
+    @staticmethod
+    def _pick_audio_url(info):
+        """Best direct audio-only URL from extracted info."""
+        best = None
+        for f in (info or {}).get("formats") or []:
+            if not f.get("url"):
+                continue
+            if f.get("vcodec") not in (None, "none"):
+                continue
+            if f.get("acodec") in (None, "none"):
+                continue
+            if f.get("protocol") not in (None, "https", "http"):
+                continue
+            score = (f.get("ext") == "m4a", min(f.get("abr") or 0, 160))
+            if best is None or score > best[0]:
+                best = (score, f["url"])
+        if best:
+            return best[1]
+        return (info or {}).get("url")
+
+    async def stream_url(self, link, videoid=None):
+        """Direct playable audio URL. Instant when metadata is cached."""
+        if videoid:
+            link = self.base + str(link)
+        link = self._clean_link(link)
+        info = self._get_cached_info(link)
+        if info is None:
+            await self._yt_info(link)
+            info = self._get_cached_info(link)
+        return self._pick_audio_url(info)
+
+    async def warmup(self):
+        """Call once at bot start: loads yt-dlp extractors + player cache."""
+        await self.warm(self.base + "dQw4w9WgXcQ")
+
+    async def warm(self, link, videoid=None):
+        """Pre-extract stream info so the next play is instant."""
+        try:
+            await self.stream_url(link, videoid)
+        except Exception as error:
+            LOGGER.debug("Warm-up failed: %s", error)
+
     async def _download_plain(self, link, is_video, base_options):
         options = dict(base_options)
         if is_video:
@@ -903,6 +951,9 @@ class YouTubeAPI:
             options["format"] = AUDIO_FORMAT
 
         cached_info = self._get_cached_info(link)
+        if cached_info is None and link.startswith("http"):
+            await self._yt_info(link)
+            cached_info = self._get_cached_info(link)
 
         def run():
             with yt_dlp.YoutubeDL(options) as ydl:
@@ -934,6 +985,7 @@ class YouTubeAPI:
         songvideo=None,
         format_id=None,
         title=None,
+        instant=False,
     ):
         if videoid:
             link = self.base + str(link)
@@ -1039,6 +1091,14 @@ class YouTubeAPI:
             cached_file = self._cached_file(vid, is_video)
             if cached_file:
                 return cached_file, True
+
+        # 1b) instant mode: hand back a direct stream URL right away and
+        # save the file in the background for replays.
+        if instant and not is_video:
+            url = await self.stream_url(link)
+            if url:
+                self._start_local_prefetch(link, False)
+                return url, True
 
         # 2) Same track already downloading (e.g. prefetch) -> share it.
         key = f"{vid or link}:{'v' if is_video else 'a'}"
