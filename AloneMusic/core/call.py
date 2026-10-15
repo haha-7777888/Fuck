@@ -288,54 +288,26 @@ class Call(PyTgCalls):
                 silent_stream,
             )
 
-    
-    async def prepare_call(self, chat_id: int):
-        lock = self._prejoin_locks.setdefault(
-            chat_id,
-            asyncio.Lock(),
-        )
+    def start_prejoin(self, chat_id: int):
+        """
+        Schedule an early voice-chat connection without blocking /play.
+        """
+        existing = self._prejoin_tasks.get(chat_id)
 
-        async with lock:
-            LOGGER(__name__).info(
-                "Pre-join: getting assistant for %s",
-                chat_id,
-            )
+        if existing is not None:
+            if not existing.done():
+                return existing
 
-            assistant = await group_assistant(self, chat_id)
+            try:
+                existing.result()
+                # A successful pre-join is still useful until join_call
+                # consumes it and replaces the silent stream.
+                return existing
+            except Exception:
+                self._prejoin_tasks.pop(chat_id, None)
 
-            LOGGER(__name__).info(
-                "Pre-join: assistant obtained for %s",
-                chat_id,
-            )
-
-            silence_path = await self._create_silence_file()
-
-            LOGGER(__name__).info(
-                "Pre-join: silence file ready for %s",
-                chat_id,
-            )
-
-            silent_stream = self._build_stream(
-                silence_path,
-                video=False,
-            )
-
-            LOGGER(__name__).info(
-                "Pre-join: starting silent stream for %s",
-                chat_id,
-            )
-
-            await self._play_on_assistant(
-                assistant,
-                chat_id,
-                silent_stream,
-            )
-
-            LOGGER(__name__).info(
-                "Pre-join: silent stream started for %s",
-                chat_id,
-            )
-
+        task = asyncio.create_task(self.prepare_call(chat_id))
+        self._prejoin_tasks[chat_id] = task
 
         def _log_result(done_task):
             try:
