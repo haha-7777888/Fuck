@@ -12,8 +12,8 @@ import httpx
 import yt_dlp
 
 # ── Config ────────────────────────────────────────────────────
-API_URL = os.getenv("API_URL", "https://www.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "riteshfree3674a52d14a849adf597b5c1")
+API_URL = ""
+API_KEY = ""
 
 # ── Dynamic imports with graceful fallbacks ───────────────────
 try:
