@@ -53,7 +53,7 @@ async def gib_repo_callback(_, callback_query):
             "https://telegra.ph/file/b1367262cdfbcd0b2af07.mp4",
 
             caption=(
-                "🎵 AloneMusic Source Code🎵\n"
+                "🎵 MyanmarMusic Source Code🎵\n"
                 "✨ Fast • Powerful • Smooth Music Bot\n"
                 "➠ Play songs from YouTube instantly\n"
                 "➠ High-quality audio & video streaming\n"
@@ -67,7 +67,7 @@ async def gib_repo_callback(_, callback_query):
                 [
                     InlineKeyboardButton(
                         text="⌯ ғᴏʀᴋ ʀᴇᴘᴏ ⌯",
-                        url="https://github.com/TheAloneTeam/AloneMusic/fork"
+                        url="https://t.me/Hanthar999"
                     ),
                     InlineKeyboardButton(text="⌯ 💌 ʏᴛ-ʌᴘɪ ⌯", callback_data="bot_info_data"),
                 ],
@@ -128,7 +128,7 @@ async def show_bot_info(c: app, q: CallbackQuery):
 async def support(client, CallbackQuery, _):
     await CallbackQuery.edit_message_text(
         text=(
-            "🎵 Welcome to AloneMusic 🎵\n"
+            "🎵 Welcome to MyanmarMusic 🎵\n"
             "✨ Fast • Powerful • Smooth Music Experience\n"
             "➠ Play songs from YouTube instantly\n"
             "➠ High-quality audio & video streaming\n"
@@ -142,7 +142,7 @@ async def support(client, CallbackQuery, _):
                 [
                     InlineKeyboardButton(
                         text="⌯ ᴅᴇᴠ ⌯", 
-                        user_id=config.OWNER_ID
+                        user_id=config.OWNER_LINK
                     )
                 ],
                 [
