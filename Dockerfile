@@ -12,4 +12,4 @@ COPY . .
 RUN pip install -U pip uv
 RUN uv pip install --system .
 
-CMD ["sh", "-c", "AloneMusic"]
+CMD ["python", "-m", "AloneMusic"]
