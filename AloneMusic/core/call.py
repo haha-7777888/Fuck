@@ -890,8 +890,8 @@ class Call(PyTgCalls):
 
                             await app.send_message(
                                 chat_id,
-                                "🎵 𝐓ʜᴇ 𝐐ᴜᴇᴜᴇ 𝐇ᴀs 𝐅ɪɴɪsʜᴇᴅ. "
-                                "𝐔sᴇ /play 𝐓ᴏ 𝐀ᴅᴅ 𝐌ᴏʀᴇ 𝐒ᴏɴɢs!!",
+                                "**မင်းက သူဘဝအတွက်အရေးမပါလို့**"
+                                "**သီချင်းပဲ ဆက်နားထောင်ပါ**",
                                 reply_markup=buttons,
                             )
                         except Exception:
@@ -929,8 +929,8 @@ class Call(PyTgCalls):
 
                     await app.send_message(
                         chat_id,
-                        "🎵 𝐓ʜᴇ 𝐐ᴜᴇᴜᴇ 𝐇ᴀs 𝐅ɪɴɪsʜᴇᴅ. "
-                        "𝐔sᴇ /play 𝐓ᴏ 𝐀ᴅᴅ 𝐌ᴏʀᴇ 𝐒ᴏɴɢs!!",
+                        "**မင်းက သူဘဝအတွက်အရေးမပါလို့**"
+                        "**သီချင်းပဲ ဆက်နားထောင်ပါ**",
                         reply_markup=buttons,
                     )
                 except Exception:
