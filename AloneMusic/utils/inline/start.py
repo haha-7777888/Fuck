@@ -28,15 +28,13 @@ def start_panel(_):
     return [
         [
             btn(
-                "𝐀ᴅᴅ 𝐌ᴇ",
-                "success",
-                5134476056241112076,
+                "ʌᴅᴅ ϻє вᴧʙʏ",
                 url=f"https://t.me/{app.username}?startgroup=true",
             ),
             btn(
-                "𝐒ᴜᴘᴘᴏʀᴛ",
-                "success",
-                5134202243486057363,
+                "sυᴘᴘσʀᴛ",
+               # "success",
+               # 5134202243486057363,
                 url=config.SUPPORT_CHAT,
             ),
         ],
@@ -48,31 +46,31 @@ def private_panel(_):
     return [
         [
             btn(
-                " 𝐀ᴅᴅ 𝐌ᴇ",
-                "success",
-                5134476056241112076,
+                " ʌᴅᴅ ϻє вᴧʙʏ",
+               # "success",
+               # 5134476056241112076,
                 url=f"https://t.me/{app.username}?startgroup=true",
             ),
         ],
         [
             btn(
-                " 𝐒ᴜᴘᴘᴏʀᴛ",
-                "success",
-                5134202243486057363,
+                " sυᴘᴘσʀᴛ",
+                #"success",
+                #5134202243486057363,
                 url=config.SUPPORT_CHAT,
             ),
             btn(
-                " 𝐂ᴏᴅᴇ 𝐂ʀᴇᴡ",
-                "success",
-                5085022089103016925,
+                " ❍ᴡηєʀ",
+                #"success",
+               # 5085022089103016925,
                 url=config.CODE_CREW_CHANNEL,
             ),
         ],
         [
             btn(
-                "𝐂ᴏᴍᴍᴀɴᴅs",
-                "success",
-                5134202243486057363,
+                "ʜєʟᴘ ᴧηᴅ ᴄσϻϻᴧηᴅs ",
+                #"success",
+                #5134202243486057363,
                 callback_data="settings_back_helper",
             ),
         ],
