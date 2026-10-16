@@ -2,8 +2,7 @@
 YouTube.py — YouTube platform for AloneMusic
 License: GNU GPL v3.0
 
-Hybrid execution: Local yt-dlp first; if local yt-dlp fails or is blocked,
-falls back to AloneMusic API (API_URL) automatically.
+Local yt-dlp execution without external API fallbacks to prevent unwanted intro audio.
 """
 
 import asyncio
@@ -21,20 +20,10 @@ from typing import Union
 import yt_dlp
 
 try:
-    import aiofiles
-except ImportError:
-    aiofiles = None
-
-try:
     import config
 except ImportError:
     class config:
         DURATION_LIMIT = 600
-
-try:
-    import httpx
-except ImportError:
-    httpx = None
 
 try:
     from pyrogram.enums import MessageEntityType
@@ -71,10 +60,6 @@ except ImportError:
         except (ValueError, TypeError):
             return 0
 
-
-# Default API URL fallback to live API
-API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "riteshfree34f595dcba9427d059ae5804")
 
 LOGGER = logging.getLogger(__name__)
 
@@ -134,45 +119,6 @@ def _ydl_options(**overrides):
     return options
 
 
-async def check_file_size(link):
-    """Return the total reported format size, or None."""
-    def extract():
-        with yt_dlp.YoutubeDL(_ydl_options(noplaylist=True)) as ydl:
-            return ydl.extract_info(link, download=False)
-
-    try:
-        info = await asyncio.to_thread(extract)
-        if not info:
-            return None
-
-        total = sum(
-            item.get("filesize") or item.get("filesize_approx") or 0
-            for item in info.get("formats", [])
-        )
-        return total or None
-
-    except Exception as error:
-        LOGGER.warning("Could not check YouTube file size: %s", error)
-        return None
-
-
-async def download_assistant(query, dl_type):
-    """Build an external download URL."""
-    if not API_URL:
-        return None
-
-    safe_query = urllib.parse.quote(str(query))
-    extension = "mp3" if dl_type == "audio" else "mp4"
-
-    if API_KEY:
-        return f"{API_URL}/downloads/{API_KEY}/{safe_query}.{extension}"
-
-    return (
-        f"{API_URL}/downloads/stream"
-        f"?query={safe_query}&dl_type={dl_type}"
-    )
-
-
 class YouTubeAPI:
     def __init__(self):
         self.base = BASE_URL
@@ -181,43 +127,20 @@ class YouTubeAPI:
         self.status = "https://www.youtube.com/oembed?url="
         self.reg = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
-        self._client = None
         self._recent_prefetches = {}
-
-        # Metadata cache
         self._info_cache = {}
         self._cache_ttl = 600
-        self._cache_limit = 200
-
-        # Prevent multiple simultaneous lookups for same query
         self._info_locks = {}
         self._lock_guard = asyncio.Lock()
-
-        # Inflight task deduplication
-        self._inflight = {}
         self._bg_tasks = set()
         self._prefetch_sem = asyncio.Semaphore(MAX_PREFETCH_PARALLEL)
 
     async def warmup(self):
         """Pre-initialize network connections and cache components for fast startup."""
         try:
-            if httpx is not None:
-                await self.get_client()
             LOGGER.info("YouTubeAPI warmup completed successfully.")
         except Exception as err:
             LOGGER.warning("YouTubeAPI warmup notice: %s", err)
-
-    async def get_client(self):
-        if httpx is None:
-            raise RuntimeError("httpx is not installed")
-
-        if self._client is None or self._client.is_closed:
-            self._client = httpx.AsyncClient(
-                timeout=httpx.Timeout(20.0, connect=5.0),
-                follow_redirects=True,
-            )
-
-        return self._client
 
     async def exists(self, link, videoid: Union[bool, str] = None):
         if not link:
@@ -227,7 +150,6 @@ class YouTubeAPI:
         return bool(re.search(self.regex, str(link), re.IGNORECASE))
 
     async def url(self, message_1):
-        """Extract a URL from a Telegram message or its reply."""
         messages = [message_1]
         reply = getattr(message_1, "reply_to_message", None)
 
@@ -321,10 +243,6 @@ class YouTubeAPI:
         return f"{minutes}:{secs:02d}"
 
     async def _yt_info(self, query, limit=1, flat=False):
-        """
-        Fetch metadata locally with yt-dlp first.
-        If local yt-dlp fails, falls back to AloneMusic API.
-        """
         query = str(query or "").strip()
         if not query:
             return None
@@ -352,7 +270,6 @@ class YouTubeAPI:
             if cached and now - cached[0] < self._cache_ttl:
                 return cached[1]
 
-            # 1. PRIORITY 1: Local yt-dlp extraction
             options = _ydl_options(
                 noplaylist=not flat,
                 extract_flat="in_playlist" if flat else False,
@@ -373,33 +290,6 @@ class YouTubeAPI:
                     return info
             except Exception as error:
                 LOGGER.warning("Local yt-dlp metadata error for %s: %s", query, error)
-
-            # 2. PRIORITY 2 FALLBACK: AloneMusic API
-            if API_URL and httpx is not None:
-                try:
-                    client = await self.get_client()
-                    params = {"q": query, "limit": limit}
-                    if API_KEY:
-                        params["api_key"] = API_KEY
-                    resp = await client.get(f"{API_URL}/search", params=params)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        res_list = data.get("result", [])
-                        if res_list:
-                            parsed_entries = []
-                            for r in res_list:
-                                parsed_entries.append({
-                                    "id": r.get("id"),
-                                    "title": r.get("title"),
-                                    "duration": time_to_seconds(r.get("duration")),
-                                    "webpage_url": r.get("link"),
-                                    "thumbnail": r.get("thumbnails", [{}])[0].get("url") if r.get("thumbnails") else None
-                                })
-                            info = {"entries": parsed_entries} if not is_url else parsed_entries[0]
-                            self._info_cache[cache_key] = (time.monotonic(), info)
-                            return info
-                except Exception as api_err:
-                    LOGGER.warning("API metadata fallback failed for %s: %s", query, api_err)
 
             return None
 
@@ -511,20 +401,6 @@ class YouTubeAPI:
 
         link = self._clean_link(link)
 
-        # Priority 1: AloneMusic API video stream / download URL
-        if API_URL:
-            try:
-                vid_extracted = extract_vidid(link) or link
-                if API_KEY:
-                    stream_url = f"{API_URL}/downloads/{API_KEY}/youtube.com/{vid_extracted}.mp4"
-                else:
-                    stream_url = f"{API_URL}/downloads/youtube.com/{vid_extracted}.mp4"
-                LOGGER.info("Generated video stream URL via API for %s: %s", link, stream_url)
-                return 1, stream_url
-            except Exception as api_err:
-                LOGGER.warning("API video stream URL generation failed: %s", api_err)
-
-        # Priority 2: Local yt-dlp / API hybrid download
         try:
             result = await self.download(link, None, video=True)
             if result and isinstance(result, tuple) and result[0]:
@@ -532,7 +408,6 @@ class YouTubeAPI:
         except Exception as error:
             LOGGER.warning("YouTube video download failed: %s", error)
 
-        # Fallback: yt-dlp -g direct URL extraction
         try:
             process = await asyncio.create_subprocess_exec(
                 "yt-dlp",
@@ -814,7 +689,6 @@ class YouTubeAPI:
 
     @staticmethod
     def _cached_file(video_id, is_video):
-        """Return an already-downloaded, complete file for this video."""
         exts = ("mp4",) if is_video else AUDIO_EXTS
         for ext in exts:
             path = os.path.join(DOWNLOAD_DIR, f"{video_id}.{ext}")
@@ -823,7 +697,6 @@ class YouTubeAPI:
         return None
 
     async def _download_local_ytdlp(self, link, is_video, base_options):
-        """Attempts direct local yt-dlp download."""
         options = dict(base_options)
         if is_video:
             options.update({
@@ -850,43 +723,6 @@ class YouTubeAPI:
 
         return await asyncio.to_thread(run)
 
-    async def _download_api_fallback(self, link, is_video):
-        """Fallback: Downloads directly from AloneMusic API if local yt-dlp fails."""
-        if not API_URL or httpx is None:
-            return None
-
-        vid = extract_vidid(link) or "media"
-        ext = "mp4" if is_video else "mp3"
-        target_path = os.path.join(DOWNLOAD_DIR, f"{vid}.{ext}")
-
-        params = {
-            "query": link,
-            "dl_type": "video" if is_video else "audio"
-        }
-        if API_KEY:
-            params["api_key"] = API_KEY
-
-        try:
-            client = await self.get_client()
-            async with client.stream("GET", f"{API_URL}/download", params=params) as resp:
-                if resp.status_code in (200, 206):
-                    if aiofiles is not None:
-                        async with aiofiles.open(target_path, "wb") as f:
-                            async for chunk in resp.aiter_bytes(chunk_size=128 * 1024):
-                                await f.write(chunk)
-                    else:
-                        with open(target_path, "wb") as f:
-                            async for chunk in resp.aiter_bytes(chunk_size=128 * 1024):
-                                f.write(chunk)
-
-                    if os.path.isfile(target_path) and os.path.getsize(target_path) > 0:
-                        LOGGER.info("Successfully fetched %s via API fallback", vid)
-                        return target_path
-        except Exception as err:
-            LOGGER.warning("API download fallback error for %s: %s", link, err)
-
-        return None
-
     async def download(
         self,
         link,
@@ -901,9 +737,6 @@ class YouTubeAPI:
         *args,
         **kwargs,
     ):
-        """
-        Download media with PRIORITY 1: Local yt-dlp -> PRIORITY 2: AloneMusic API
-        """
         if videoid:
             link = self.base + str(link)
 
@@ -916,7 +749,6 @@ class YouTubeAPI:
         is_video = bool(video or songvideo)
         vid = extract_vidid(link)
 
-        # 1. Already on disk -> instant
         if vid:
             cached_file = self._cached_file(vid, is_video)
             if cached_file:
@@ -949,27 +781,17 @@ class YouTubeAPI:
                 "aria2c": ["-x16", "-s16", "-k1M", "--file-allocation=none"]
             }
 
-        # PRIORITY 1: Try local yt-dlp download first
         try:
             file_path = await self._download_local_ytdlp(link, is_video, base_options)
             if file_path and os.path.isfile(file_path):
                 return file_path, True
         except Exception as error:
-            LOGGER.warning("Local yt-dlp download failed for %s: %s. Trying API fallback...", link, error)
-
-        # PRIORITY 2: Try AloneMusic API fallback if local yt-dlp fails
-        try:
-            api_file = await self._download_api_fallback(link, is_video)
-            if api_file and os.path.isfile(api_file):
-                return api_file, True
-        except Exception as api_err:
-            LOGGER.error("API fallback download failed for %s: %s", link, api_err)
+            LOGGER.warning("Local yt-dlp download failed for %s: %s", link, error)
 
         return None
 
     async def close(self):
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()
+        pass
 
 
 YouTube = YouTubeAPI()
