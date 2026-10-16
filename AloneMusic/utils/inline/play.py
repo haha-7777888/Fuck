@@ -133,15 +133,15 @@ def stream_markup_timer(
                 )
             ],
             [
-                btn("▷", "success", callback_data=f"ADMIN Resume|{chat_id}"),
-                btn("II", "primary", callback_data=f"ADMIN Pause|{chat_id}"),
-                btn("‣‣I", "success", callback_data=f"ADMIN Skip|{chat_id}"),
-                btn("↻ ", "primary", callback_data=f"ADMIN Replay|{chat_id}"),
+                btn("▷",  callback_data=f"ADMIN Resume|{chat_id}"),
+                btn("II",  callback_data=f"ADMIN Pause|{chat_id}"),
+                btn("‣‣I",  callback_data=f"ADMIN Skip|{chat_id}"),
+                btn("↻ ",  callback_data=f"ADMIN Replay|{chat_id}"),
                 btn("▢", "danger", callback_data=f"ADMIN Stop|{chat_id}"),
             ],
             [
                 btn("<-𝟤𝟢 s", "primary", callback_data="seek_backward_20"),
-                btn("☰", "primary", callback_data=f"ADMIN More|{chat_id}"),
+                btn("☰",  callback_data=f"ADMIN More|{chat_id}"),
                 btn("𝟤𝟢s+ >", "primary", callback_data="seek_forward_20"),
             ],
             [
@@ -184,10 +184,10 @@ def stream_markup_timer(
                     callback_data=f"ADMIN Thumb|{chat_id}",
                 ),
             ],
-            [
-                btn("ᴠᴏɪᴄᴇ ᴄᴏɴᴛʀᴏʟ", "primary", callback_data=f"ADMIN Filter|{chat_id}"),
-                btn(f_text, "success", callback_data=f"ADMIN Filter|{chat_id}"),
-            ],
+           # [
+              #  btn("ᴠᴏɪᴄᴇ ᴄᴏɴᴛʀᴏʟ", "primary", callback_data=f"ADMIN Filter|{chat_id}"),
+              #  btn(f_text, "success", callback_data=f"ADMIN Filter|{chat_id}"),
+          #  ],
             [
                 btn(" ʙᴀᴄᴋ", "primary", callback_data=f"ADMIN Back|{chat_id}"),
                 btn(" ᴄʟᴏsᴇ", "danger", callback_data="close"),
@@ -252,13 +252,13 @@ def stream_markup(
                     callback_data=f"ADMIN Thumb|{chat_id}",
                 ),
             ],
+           # [
+           #     btn("ᴠᴏɪᴄᴇ ᴄᴏɴᴛʀᴏʟ", "primary", callback_data=f"ADMIN Filter|{chat_id}"),
+             #   btn(f_text, "success", callback_data=f"ADMIN Filter|{chat_id}"),
+          #  ],
             [
-                btn("ᴠᴏɪᴄᴇ ᴄᴏɴᴛʀᴏʟ", "primary", callback_data=f"ADMIN Filter|{chat_id}"),
-                btn(f_text, "success", callback_data=f"ADMIN Filter|{chat_id}"),
-            ],
-            [
-                btn("⟵ ʙᴀᴄᴋ", "primary", callback_data=f"ADMIN Back|{chat_id}"),
-                btn("🗑 ᴄʟᴏsᴇ", "danger", callback_data="close"),
+                btn(" ʙᴀᴄᴋ", "primary", callback_data=f"ADMIN Back|{chat_id}"),
+                btn(" ᴄʟᴏsᴇ", "danger", callback_data="close"),
             ],
         ]
 
