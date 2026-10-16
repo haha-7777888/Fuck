@@ -55,63 +55,63 @@ def help_pannel(_, START: Union[bool, int] = None):
             [
                 btn(
                     text=_["H_B_1"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb1",
                 ),
                 btn(
                     text=_["H_B_2"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb2",
                 ),
                 btn(
                     text=_["H_B_3"],
-                    style="success",
+                  #  style="success",
                     callback_data="help_callback hb3",
                 ),
             ],
             [
                 btn(
                     text=_["H_B_4"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb4",
                 ),
                 btn(
                     text=_["H_B_5"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb5",
                 ),
                 btn(
                     text=_["H_B_6"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb6",
                 ),
             ],
             [
                 btn(
                     text=_["H_B_7"],
-                    style="success",
+                    #style="success",
                     callback_data="help_callback hb7",
                 ),
                 btn(
                     text=_["H_B_8"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb8",
                 ),
                 btn(
                     text=_["H_B_9"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb9",
                 ),
             ],
             [
                 btn(
                     text=_["H_B_10"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb10",
                 ),
                 btn(
                     text=_["H_B_11"],
-                    style="success",
+                   # style="success",
                     callback_data="help_callback hb11",
                 ),
             ],
