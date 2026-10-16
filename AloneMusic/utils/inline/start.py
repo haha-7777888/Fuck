@@ -60,10 +60,10 @@ def private_panel(_):
                 url=config.SUPPORT_CHAT,
             ),
             btn(
-                " ❍ᴡηєʀ",
+                "υᴘᴅᴧᴛєs",
                 #"success",
                # 5085022089103016925,
-                url=config.CODE_CREW_CHANNEL,
+                url=config.SUPPORT_CHANNEL,
             ),
         ],
         [
@@ -72,6 +72,14 @@ def private_panel(_):
                 #"success",
                 #5134202243486057363,
                 callback_data="settings_back_helper",
+            ),
+        ],
+        [
+            btn(
+                "❍ᴡηєʀ",
+                #"success",
+                #5134202243486057363,
+                url=config.CODE_CREW_CHANNEL,
             ),
         ],
     ]
