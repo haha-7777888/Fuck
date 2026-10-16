@@ -37,7 +37,6 @@ def help_pannel(_, START: Union[bool, int] = None):
     first = [
         btn(
             text=_["CLOSE_BUTTON"],
-            style="success",
             callback_data="close",
         )
     ]
@@ -45,7 +44,6 @@ def help_pannel(_, START: Union[bool, int] = None):
     second = [
         btn(
             text=_["BACK_BUTTON"],
-            style="success",
             callback_data="settingsback_helper",
         ),
     ]
@@ -117,18 +115,18 @@ def help_pannel(_, START: Union[bool, int] = None):
                     callback_data="help_callback hb11",
                 ),
             ],
-            [
-                btn(
-                    text=_["H_B_12"],
-                    style="success",
-                    callback_data="help_callback hb12",
-                ),
-                btn(
-                    text=_["H_B_13"],
-                    style="success",
-                    callback_data="help_callback hb13",
-                ),
-            ],
+          #  [
+              #  btn(
+                #    text=_["H_B_12"],
+                 #   style="success",
+                #    callback_data="help_callback hb12",
+               # ),
+              #  btn(
+                 #   text=_["H_B_13"],
+                 #   style="success",
+                 #   callback_data="help_callback hb13",
+              #  ),
+            #],
             mark,
         ]
     )
@@ -142,7 +140,6 @@ def help_back_markup(_):
             [
                 btn(
                     text=_["BACK_BUTTON"],
-                    style="success",
                     callback_data="settings_back_helper",
                 ),
             ]
@@ -157,7 +154,6 @@ def private_help_panel(_):
         [
             btn(
                 text=_["S_B_4"],
-                style="success",
                 url=f"https://t.me/{app.username}?start=help",
             ),
         ],
