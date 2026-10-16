@@ -42,8 +42,8 @@ SPOTIFY_ARTIST_IMG_URL = get_thumb()
 SPOTIFY_ALBUM_IMG_URL = get_thumb()
 SPOTIFY_PLAYLIST_IMG_URL = get_thumb()
 
-YTPROXY_URL = getenv("YTPROXY_URL", 'https://tgapi.xbitcode.com') ## xBit Music Endpoint.
-YT_API_KEY = getenv("YT_API_KEY" , "xbit_KiY0HWimxyDMVxjg6R7-7UtJKyPW9kSD")
+#YTPROXY_URL = getenv("YTPROXY_URL", 'https://tgapi.xbitcode.com') ## xBit Music Endpoint.
+#YT_API_KEY = getenv("YT_API_KEY" , "xbit_KiY0HWimxyDMVxjg6R7-7UtJKyPW9kSD")
 
 # Get this value from my.telegram.org/apps
 API_ID = getenv("API_ID", "25742938")
@@ -56,16 +56,16 @@ BOT_TOKEN = getenv("BOT_TOKEN", "8806982181:AAHU0LYvLs7aEPR-YkggHV_-nYgbiXw5YTw"
 MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://lollolopp0900_db_user:xbaj05RPixvCXNMS@zero.rqsozug.mongodb.net/?appName=Zero")
 
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 600))
-CODE_CREW_CHANNEL = "https://t.me/thecodecrew"
+CODE_CREW_CHANNEL = "https://t.me/hex_king9"
 # Set this to true if you want post ads automatically
 ADS_MODE = getenv("ADS_MODE", None)
 
 # Chat id of a group for logging bot's activities
-LOGGER_ID = int(getenv("LOGGER_ID", -1003972764819))
+LOGGER_ID = int(getenv("LOGGER_ID", ""))
 
 DEBUG_IGNORE_LOG = True
 # Get this value from  on Telegram by /id
-OWNER_ID = int(getenv("OWNER_ID", 6018803920))
+OWNER_ID = int(getenv("OWNER_ID","" ))
 
 ## Fill these variables if you're deploying on heroku.
 # Your heroku app name
@@ -75,7 +75,7 @@ HEROKU_API_KEY = getenv("HEROKU_API_KEY")
 
 UPSTREAM_REPO = getenv(
     "UPSTREAM_REPO",
-    "https://github.com/slayer123700/zerooo",
+    "https://github.com/haha-7777888/Fuck",
 )
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "master")
 GIT_TOKEN = getenv(
@@ -83,8 +83,8 @@ GIT_TOKEN = getenv(
 )  # Fill this variable if your upstream repository is private
 
 
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/thecodecrew")
-SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/thecodecrew")
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "")
+SUPPORT_CHAT = getenv("SUPPORT_CHAT", "")
 # Set this to True if you want the assistant to automatically leave chats after an interval
 AUTO_LEAVING_ASSISTANT = bool(getenv("AUTO_LEAVING_ASSISTANT", None))
 
@@ -120,31 +120,31 @@ confirmer = {}
 
 START_IMG_URL = getenv(
     "START_IMG_URL",
-    "https://i.ibb.co/99NrkQjn/photo-2026-10-13-06-09-53-7696030749559881736.jpg",
+    "https://files.catbox.moe/v1qiwi.jpg",
 )
 
 PING_IMG_URL = getenv(
     "PING_IMG_URL",
-    "https://i.ibb.co/8Dbts8dK/photo-2026-10-13-11-10-48-7696108295194411036.jpg",
+    "https://files.catbox.moe/v1qiwi.jpg",
 )
 
 PLAYLIST_IMG_URL = (
-    "https://i.ibb.co/WW9NDyD1/photo-2026-10-13-11-11-57-7696108591547154472.jpg"
+    "https://files.catbox.moe/v1qiwi.jpg"
 )
 
 STATS_IMG_URL = (
-    "https://i.ibb.co/WW9NDyD1/photo-2026-10-13-11-11-57-7696108591547154472.jpg"
+    "https://files.catbox.moe/v1qiwi.jpg"
 )
 
-TELEGRAM_AUDIO_URL = "https://files.catbox.moe/rzqjq1.jpg"
-TELEGRAM_VIDEO_URL = "https://files.catbox.moe/rzqjq1.jpg"
+TELEGRAM_AUDIO_URL = "https://files.catbox.moe/v1qiwi.jpg"
+TELEGRAM_VIDEO_URL = "https://files.catbox.moe/v1qiwi.jpg"
 
-STREAM_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
-SOUNCLOUD_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
-YOUTUBE_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
-SPOTIFY_ARTIST_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
-SPOTIFY_ALBUM_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
-SPOTIFY_PLAYLIST_IMG_URL = "https://image-link.edgeone.app/1791871688204-wrcgkl.jpg"
+STREAM_IMG_URL = "https://files.catbox.moe/v1qiwi.jpg"
+SOUNCLOUD_IMG_URL = "https://files.catbox.moe/v1qiwi.jpg"
+YOUTUBE_IMG_URL = "https://files.catbox.moe/v1qiwi.jpg"
+SPOTIFY_ARTIST_IMG_URL = "https://files.catbox.moe/v1qiwi.jpg"
+SPOTIFY_ALBUM_IMG_URL = "https://files.catbox.moe/v1qiwi.jpg"
+SPOTIFY_PLAYLIST_IMG_URL = "https://files.catbox.moe/v1qiwi.jpg"
 
 
 def time_to_seconds(time):
