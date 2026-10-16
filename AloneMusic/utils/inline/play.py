@@ -133,19 +133,19 @@ def stream_markup_timer(
                 )
             ],
             [
-                btn(" ", "success", 5773626993010546707, callback_data=f"ADMIN Resume|{chat_id}"),
+                btn("▷", "success", callback_data=f"ADMIN Resume|{chat_id}"),
                 btn("II", "primary", callback_data=f"ADMIN Pause|{chat_id}"),
-                btn(" ", "success", 5253767677670862169, callback_data=f"ADMIN Skip|{chat_id}"),
-                btn(" ", "primary", 5845943483382110702, callback_data=f"ADMIN Replay|{chat_id}"),
+                btn("‣‣I", "success", callback_data=f"ADMIN Skip|{chat_id}"),
+                btn("↻ ", "primary", callback_data=f"ADMIN Replay|{chat_id}"),
                 btn("▢", "danger", callback_data=f"ADMIN Stop|{chat_id}"),
             ],
             [
                 btn("<-𝟤𝟢 s", "primary", callback_data="seek_backward_20"),
-                btn(" ", "primary", 5766994197705921104, callback_data=f"ADMIN More|{chat_id}"),
+                btn("☰", "primary", callback_data=f"ADMIN More|{chat_id}"),
                 btn("𝟤𝟢s+ >", "primary", callback_data="seek_forward_20"),
             ],
             [
-                btn(" ", "danger", 5258130763148172425, callback_data="close"),
+                btn("ᴄʟᴏsᴇ", "danger",callback_data="close"),
             ],
         ]
 
@@ -189,8 +189,8 @@ def stream_markup_timer(
                 btn(f_text, "success", callback_data=f"ADMIN Filter|{chat_id}"),
             ],
             [
-                btn("⟵ ʙᴀᴄᴋ", "primary", callback_data=f"ADMIN Back|{chat_id}"),
-                btn("🗑 ᴄʟᴏsᴇ", "danger", callback_data="close"),
+                btn(" ʙᴀᴄᴋ", "primary", callback_data=f"ADMIN Back|{chat_id}"),
+                btn(" ᴄʟᴏsᴇ", "danger", callback_data="close"),
             ],
         ]
 
