@@ -1,11 +1,9 @@
-
 import asyncio
 import os
 import random
 from datetime import datetime, timedelta
 from typing import Union
 
-from gtts import gTTS
 from ntgcalls import ConnectionNotFound, TelegramServerError
 from pyrogram import Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -21,13 +19,10 @@ from AloneMusic.utils.database import (
     get_filter,
     get_lang,
     get_loop,
-    get_tts_duration,
-    get_tts_text,
     group_assistant,
     is_autoend,
     is_autoplay_on,
     is_thumb_on,
-    is_tts_on,
     music_on,
     remove_active_chat,
     remove_active_video_chat,
@@ -120,7 +115,6 @@ class Call(PyTgCalls):
         )
         self.five = PyTgCalls(self.userbot5, cache_duration=100)
 
-        # Tasks used to join a voice chat while the requested track resolves.
         self._prejoin_tasks = {}
         self._prejoin_locks = {}
 
@@ -139,8 +133,6 @@ class Call(PyTgCalls):
             return '-filter:a "asetrate=48000*1.25,atempo=1.25"'
         return None
 
-    # Shorter probing = audio starts sooner on direct stream URLs.
-    # Set to "" to disable if a stream ever fails to start.
     FAST_START_FLAGS = "-fflags nobuffer -probesize 128k -analyzeduration 500000"
 
     def _build_stream(
@@ -213,163 +205,19 @@ class Call(PyTgCalls):
         except Exception:
             raise
 
-    # ---------------------------------------------------------
-    # Early voice-chat connection
-    # ---------------------------------------------------------
-
-    async def _create_silence_file(self):
-        os.makedirs("cache", exist_ok=True)
-
-        silence_path = os.path.abspath("cache/prejoin_silence.mp3")
-
-        if (
-            os.path.isfile(silence_path)
-            and os.path.getsize(silence_path) > 0
-        ):
-            return silence_path
-
-        process = await asyncio.create_subprocess_exec(
-            "ffmpeg",
-            "-hide_banner",
-            "-loglevel",
-            "error",
-            "-f",
-            "lavfi",
-            "-i",
-            "anullsrc=r=48000:cl=mono",
-            "-t",
-            "3600",
-            "-c:a",
-            "libmp3lame",
-            "-b:a",
-            "32k",
-            "-y",
-            silence_path,
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.PIPE,
-        )
-
-        _, error = await process.communicate()
-
-        if (
-            process.returncode != 0
-            or not os.path.isfile(silence_path)
-            or os.path.getsize(silence_path) == 0
-        ):
-            raise RuntimeError(
-                "Failed to create pre-join silence: "
-                + error.decode(errors="replace")
-            )
-
-        return silence_path
-
+    # Disables prejoin audio to prevent sound artifacts/intro
     async def prepare_call(self, chat_id: int):
-        """
-        Connect the assistant using silent audio while YouTube resolves
-        the requested track.
-        """
-        lock = self._prejoin_locks.setdefault(
-            chat_id,
-            asyncio.Lock(),
-        )
-
-        async with lock:
-            assistant = await group_assistant(self, chat_id)
-            silence_path = await self._create_silence_file()
-
-            silent_stream = self._build_stream(
-                silence_path,
-                video=False,
-            )
-
-            await self._play_on_assistant(
-                assistant,
-                chat_id,
-                silent_stream,
-            )
+        return
 
     def start_prejoin(self, chat_id: int):
-        """
-        Schedule an early voice-chat connection without blocking /play.
-        """
-        existing = self._prejoin_tasks.get(chat_id)
-
-        if existing is not None:
-            if not existing.done():
-                return existing
-
-            try:
-                existing.result()
-                # A successful pre-join is still useful until join_call
-                # consumes it and replaces the silent stream.
-                return existing
-            except Exception:
-                self._prejoin_tasks.pop(chat_id, None)
-
-        task = asyncio.create_task(self.prepare_call(chat_id))
-        self._prejoin_tasks[chat_id] = task
-
-        def _log_result(done_task):
-            try:
-                done_task.result()
-            except asyncio.CancelledError:
-                pass
-            except Exception as exc:
-                LOGGER(__name__).warning(
-                    "Early voice-chat connection failed in %s: %s",
-                    chat_id,
-                    exc,
-                )
-
-        task.add_done_callback(_log_result)
-        return task
+        return None
 
     async def cancel_prejoin(self, chat_id: int):
-        """Cancel an unfinished early-join task."""
-        task = self._prejoin_tasks.pop(chat_id, None)
+        return
 
-        if task is not None and not task.done():
-            task.cancel()
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
-            except Exception:
-                pass
-
-    # ---------------------------------------------------------
-    # Greeting and stream controls
-    # ---------------------------------------------------------
-
+    # Disables greeting TTS audio completely
     async def play_greeting(self, chat_id: int):
-        if not await is_tts_on():
-            return
-
-        os.makedirs("cache", exist_ok=True)
-
-        try:
-            assistant = await group_assistant(self, chat_id)
-            greeting_path = f"cache/greeting_{chat_id}.mp3"
-
-            txt = await get_tts_text()
-            tts = gTTS(text=txt, lang="en")
-            tts.save(greeting_path)
-
-            stream = self._build_stream(
-                greeting_path,
-                video=False,
-            )
-
-            await self._play_on_assistant(
-                assistant,
-                chat_id,
-                stream,
-            )
-
-            duration = await get_tts_duration()
-            await asyncio.sleep(duration)
-        except Exception:
-            pass
+        return
 
     @capture_internal_err
     async def pause_stream(self, chat_id: int):
@@ -657,7 +505,6 @@ class Call(PyTgCalls):
         image: Union[bool, str] = None,
     ):
         assistant = await group_assistant(self, chat_id)
-        await self.play_greeting(chat_id)
 
         stream = self._build_stream(
             link,
@@ -726,28 +573,9 @@ class Call(PyTgCalls):
         video: Union[bool, str] = None,
         image: Union[bool, str] = None,
     ):
-        prejoin_task = self._prejoin_tasks.get(chat_id)
-
-        if prejoin_task is not None:
-            try:
-                await prejoin_task
-            except asyncio.CancelledError:
-                pass
-            except Exception as exc:
-                LOGGER(__name__).warning(
-                    "Pre-join was unsuccessful for %s: %s",
-                    chat_id,
-                    exc,
-                )
-            finally:
-                if self._prejoin_tasks.get(chat_id) is prejoin_task:
-                    self._prejoin_tasks.pop(chat_id, None)
-
         assistant = await group_assistant(self, chat_id)
         language = await get_lang(chat_id)
         _ = get_string(language)
-
-        await self.play_greeting(chat_id)
 
         filter_type = await get_filter(chat_id)
         audio_filter = (
@@ -789,10 +617,6 @@ class Call(PyTgCalls):
 
             if users == 1:
                 autoend[chat_id] = datetime.now() + timedelta(minutes=1)
-
-    # ---------------------------------------------------------
-    # Queue transition / next track
-    # ---------------------------------------------------------
 
     @capture_internal_err
     async def change_stream(self, client: PyTgCalls, chat_id: int):
@@ -854,11 +678,6 @@ class Call(PyTgCalls):
                             forceplay=True,
                         )
 
-                        asyncio.ensure_future(
-                            YouTube.prefetch(YouTube.base + video_id)
-                        )
-
-                        # Refresh because put_queue added a song.
                         check = db.get(chat_id)
                     except Exception:
                         pass
@@ -951,7 +770,6 @@ class Call(PyTgCalls):
 
         queued = check[0]["file"]
 
-        # Delete the "Added to Queue" message of the next track.
         try:
             old_queued_mystic = check[0].get("mystic")
             if old_queued_mystic:
@@ -961,8 +779,6 @@ class Call(PyTgCalls):
 
         language = await get_lang(chat_id)
         _ = get_string(language)
-
-        await self.play_greeting(chat_id)
 
         if not check:
             return await client.leave_call(
@@ -1094,58 +910,10 @@ class Call(PyTgCalls):
                     stream,
                 )
             except Exception:
-                played = False
-
-                if not video and str(file_path).startswith("http"):
-                    # Stream URL rejected: download normally and retry once.
-                    try:
-                        file_path, direct = await YouTube.download(
-                            videoid,
-                            None,
-                            videoid=True,
-                            video=video,
-                        )
-
-                        stream = self._build_stream(
-                            file_path,
-                            video=video,
-                            audio_filter=audio_filter,
-                        )
-
-                        await self._play_on_assistant(
-                            client,
-                            chat_id,
-                            stream,
-                        )
-                        played = True
-                    except Exception:
-                        pass
-
-                if not played:
-                    return await app.send_message(
-                        original_chat_id,
-                        text=_["call_6"],
-                    )
-
-            # Prepare the next queued YouTube song while this one plays.
-            try:
-                nxt = (
-                    db[chat_id][1]
-                    if len(db.get(chat_id, [])) > 1
-                    else None
+                return await app.send_message(
+                    original_chat_id,
+                    text=_["call_6"],
                 )
-
-                if nxt and "vid_" in str(nxt.get("file")):
-                    asyncio.ensure_future(
-                        YouTube.prefetch(
-                            YouTube.base + nxt["vidid"],
-                            video=(
-                                str(nxt.get("streamtype")) == "video"
-                            ),
-                        )
-                    )
-            except Exception:
-                pass
 
             img = await get_thumb(videoid)
 
