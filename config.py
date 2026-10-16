@@ -7,12 +7,12 @@
 # All rights reserved.
 
 import re
+import random
 from os import getenv
-
 from dotenv import load_dotenv
 from pyrogram import filters
-from os import getenv
-import random
+
+load_dotenv()
 
 RANDOM_THUMBS = [
     "https://files.catbox.moe/ikxb96.jpg",
@@ -42,16 +42,15 @@ SPOTIFY_ARTIST_IMG_URL = get_thumb()
 SPOTIFY_ALBUM_IMG_URL = get_thumb()
 SPOTIFY_PLAYLIST_IMG_URL = get_thumb()
 
-load_dotenv()
 YTPROXY_URL = getenv("YTPROXY_URL", 'https://tgapi.xbitcode.com') ## xBit Music Endpoint.
 YT_API_KEY = getenv("YT_API_KEY" , "xbit_KiY0HWimxyDMVxjg6R7-7UtJKyPW9kSD")
 
-# Gethis value from my.telegram.org/apps
+# Get this value from my.telegram.org/apps
 API_ID = getenv("API_ID", "25742938")
 API_HASH = getenv("API_HASH", "b35b715fe8dc0a58e8048988286fc5b6")
 
 # Get your token from @BotFather on Telegram.
-BOT_TOKEN = getenv("8806982181:AAHU0LYvLs7aEPR-YkggHV_-nYgbiXw5YTw")
+BOT_TOKEN = getenv("BOT_TOKEN", "8806982181:AAHU0LYvLs7aEPR-YkggHV_-nYgbiXw5YTw")
 
 # Get your mongo url from cloud.mongodb.com
 MONGO_DB_URI = getenv("MONGO_DB_URI", "mongodb+srv://lollolopp0900_db_user:xbaj05RPixvCXNMS@zero.rqsozug.mongodb.net/?appName=Zero")
@@ -102,7 +101,6 @@ PLAYLIST_FETCH_LIMIT = int(getenv("PLAYLIST_FETCH_LIMIT", 25))
 # Telegram audio and video file size limit (in bytes)
 TG_AUDIO_FILESIZE_LIMIT = int(getenv("TG_AUDIO_FILESIZE_LIMIT", 104857600))
 TG_VIDEO_FILESIZE_LIMIT = int(getenv("TG_VIDEO_FILESIZE_LIMIT", 1073741824))
-# Checkout https://www.gbmb.org/mb-to-bytes for converting mb to bytes
 
 
 # Get your pyrogram v2 session from @StringFatherBot on Telegram
@@ -138,11 +136,8 @@ STATS_IMG_URL = (
     "https://i.ibb.co/WW9NDyD1/photo-2026-10-13-11-11-57-7696108591547154472.jpg"
 )
 
-TELEGRAM_AUDIO_URL = (
-    "https://files.catbox.moe/rzqjq1.jpg"
-)
-
-TELEGRAM_VIDEO_URL = TELEGRAM_AUDIO_URL
+TELEGRAM_AUDIO_URL = "https://files.catbox.moe/rzqjq1.jpg"
+TELEGRAM_VIDEO_URL = "https://files.catbox.moe/rzqjq1.jpg"
 
 STREAM_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
 SOUNCLOUD_IMG_URL = "https://files.catbox.moe/rzqjq1.jpg"
